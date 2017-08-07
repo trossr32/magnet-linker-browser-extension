@@ -10,6 +10,7 @@
     "16": "content/assets/images/transmission16.png",
     "48": "content/assets/images/transmission48.png"
   },
+  "options_page": "options.html",
   "background": {
     "scripts": ["eventPage.js"],
     "persistent": false
@@ -27,6 +28,7 @@
     }
   ],
   "permissions": [
+    "storage",
     "activeTab",
     "tabs",
     "<all_urls>"
