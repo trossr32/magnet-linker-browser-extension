@@ -17,7 +17,8 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*/*"
+        "*://*/*",
+        "file://*/*"
       ],
       "js": [
         "content/js/jquery-3.2.1.min.js",
