@@ -11,7 +11,7 @@
     "48": "content/assets/images/transmission48.png"
   },
   "background": {
-    "scripts": ["eventPage.js"],
+    "scripts": ["events/js/require.js", "events/js/config.js"],
     "persistent": false
   },
   "content_scripts": [
@@ -27,6 +27,7 @@
     }
   ],
   "permissions": [
+    "storage",
     "activeTab",
     "tabs",
     "<all_urls>"
