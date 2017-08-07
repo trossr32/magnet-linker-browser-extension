@@ -42,8 +42,6 @@ $(function() {
             settings.api.username = $('#apiUsername').val();
             settings.api.password = $('#apiPassword').val();
 
-            console.log(settings);
-
             setSettings(settings);
         });
     });
