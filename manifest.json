@@ -1,0 +1,37 @@
+{
+  "manifest_version": 2,
+  "name": "Magnet linker",
+  "description": "Extends magnet links to enable quick adding of torrents to Transmission via the RPC API.",
+  "version": "1.0",
+  "browser_action": {
+    "default_icon": "content/assets/images/transmission.png"
+  },
+  "icons": {
+    "16": "content/assets/images/transmission16.png",
+    "48": "content/assets/images/transmission48.png"
+  },
+  "background": {
+    "scripts": ["eventPage.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://tpbclean.pro/*",
+        "file://*/*"
+      ],
+      "css": [
+        "content/css/bootstrap.micro.min.css"
+      ],
+      "js": [
+        "content/js/jquery-3.2.1.min.js",
+        "content/js/bootstrap.micro.min.js",
+        "content/js/content_script.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "<all_urls>"
+  ]
+}
