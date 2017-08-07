@@ -1,42 +1,48 @@
-chrome.windows.getCurrent(
-    function (currentWindow) {
-        chrome.tabs.query({active: true, windowId: currentWindow.id},
-            function(activeTabs) {
-                chrome.tabs.executeScript(activeTabs[0].id, {file: 'content/content_script.js', allFrames: true});
-            });
-    });
-
 chrome.runtime.onConnect.addListener(function(port) {
-    //if (port.name == "trpc") {
-        port.onMessage.addListener(function (request) {
-            try {
-                switch(request.method) {
-                    case 'add':
-                        if (request.magnet) {
-                            addTorrent(request.magnet, function (response) {
-                                response.buttonId = request.buttonId;
+    switch (port.name) {
+        case 'magnetCheck':
+            port.onMessage.addListener(function (request) {
+                if (request.magnets) {
+                    chrome.tabs.insertCSS(null, {file: 'content/css/bootstrap.micro.min.css'}, function() {
+                        chrome.tabs.executeScript(null, {file: 'content/js/bootstrap.micro.min.js'}, function() {
+                            chrome.tabs.executeScript(null, {file: 'content/js/content_script.js'});
+                        });
+                    });
+                }
+            });
+            break;
 
+        case 'trpc':
+            port.onMessage.addListener(function (request) {
+                try {
+                    switch(request.method) {
+                        case 'add':
+                            if (request.magnet) {
+                                addTorrent(request.magnet, function (response) {
+                                    response.buttonId = request.buttonId;
+
+                                    port.postMessage(response);
+                                });
+                            } else {
+                                port.postMessage({success: false, message: 'no magnet link supplied!'});
+                            }
+                            break;
+                        case 'getAll':
+                            getTorrents(function(response) {
                                 port.postMessage(response);
                             });
-                        } else {
-                            port.postMessage({success: false, message: 'no magnet link supplied!'});
-                        }
-                        break;
-                    case 'getAll':
-                        getTorrents(function(response) {
-                            port.postMessage(response);
-                        });
-                        break;
-                    default:
-                        port.postMessage({success:false, message: 'unknown method : ' + request.method});
-                        break;
+                            break;
+                        default:
+                            port.postMessage({success:false, message: 'unknown method : ' + request.method});
+                            break;
+                    }
                 }
-            }
-            catch (e) {
-                port.postMessage({success:false, magnet:request.magnet, exception:e});
-            }
-        });
-    //}
+                catch (e) {
+                    port.postMessage({success:false, magnet:request.magnet, exception:e});
+                }
+            });
+            break;
+    }
 });
 
 var sessionId;

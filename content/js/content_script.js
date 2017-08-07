@@ -1,4 +1,4 @@
-var port = chrome.runtime.connect({name: "trpc"});
+var port = chrome.runtime.connect({name: 'trpc'});
 
 port.onMessage.addListener(function(response) {
     console.log(response);

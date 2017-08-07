@@ -17,21 +17,17 @@
   "content_scripts": [
     {
       "matches": [
-        "*://tpbclean.pro/*",
-        "file://*/*"
-      ],
-      "css": [
-        "content/css/bootstrap.micro.min.css"
+        "*://*/*"
       ],
       "js": [
         "content/js/jquery-3.2.1.min.js",
-        "content/js/bootstrap.micro.min.js",
-        "content/js/content_script.js"
+        "content/js/magnet_link_checker.js"
       ]
     }
   ],
   "permissions": [
     "activeTab",
+    "tabs",
     "<all_urls>"
   ]
 }
