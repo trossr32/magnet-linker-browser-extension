@@ -65,7 +65,6 @@ var init = function(settings) {
             matchFound = false;
 
         $.each(settings.magnets, function(i, m) {
-            console.log(m);
             if (link.attr('href') == m)
                 matchFound = true;
         });

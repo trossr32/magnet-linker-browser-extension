@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5151359e-b7b2-42e6-839d-79d676c73f55" name="Default" comment="commit prior to requirejs integration">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/options.js" afterPath="$PROJECT_DIR$/options.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.vs/slnx.sqlite" afterPath="$PROJECT_DIR$/.vs/slnx.sqlite" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/content/js/content_script.js" afterPath="$PROJECT_DIR$/content/js/content_script.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -39,7 +40,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="options.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="options.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/options.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="323">
@@ -61,11 +62,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="content_script.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="content_script.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/content/js/content_script.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="9" selection-end-column="6" />
+            <state relative-caret-position="459">
+              <caret line="27" column="0" lean-forward="true" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -111,9 +112,9 @@
         <option value="$PROJECT_DIR$/content/js/magnet_link_checker.js" />
         <option value="$PROJECT_DIR$/manifest.json" />
         <option value="$PROJECT_DIR$/options.html" />
-        <option value="$PROJECT_DIR$/content/js/content_script.js" />
         <option value="$PROJECT_DIR$/eventPage.js" />
         <option value="$PROJECT_DIR$/options.js" />
+        <option value="$PROJECT_DIR$/content/js/content_script.js" />
       </list>
     </option>
   </component>
@@ -222,10 +223,10 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13082000" />
+    <option name="totallyTimeSpent" value="15532000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1066" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17334037" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -533,14 +534,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/content/js/content_script.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="9" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/eventPage.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1190">
@@ -564,6 +557,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="323">
           <caret line="19" column="16" lean-forward="true" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/content/js/content_script.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="459">
+          <caret line="27" column="0" lean-forward="true" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
           <folding />
         </state>
       </provider>
