@@ -1,48 +1,61 @@
-var defaultSettings = {
-    api: {
-        port: '49091',
-        host: '192.168.1.20',
-        username: 'qnap',
-        password: 'qnap'
-    },
-    magnets: []
-};
+var settingsPort = chrome.runtime.connect({ name: 'settings' }),
+    apiPort = chrome.runtime.connect({ name: 'api' });
 
-var getSettings = function(callback) {
-    chrome.storage.sync.get({'magnetLinkerSettings' : defaultSettings}, function(data) {
-        if (typeof callback === "function") {
-            callback(data.magnetLinkerSettings);
+settingsPort.onMessage.addListener(function(response) {
+    if (response.request.method === 'get') {
+        var settings = response.settings,
+            api = response.settings.api;
+
+        switch (response.request.caller) {
+            case 'setFields':
+                $('#apiPort').val(settings.api.port);
+                $('#apiHost').val(settings.api.host);
+                $('#apiUsername').val(settings.api.username);
+                $('#apiPassword').val(settings.api.password);
+                $('#apiUriFormat').val(settings.api.uriFormat);
+
+                api.wrapFields = {}
+                api.wrapFields.start = '<span style="color:orange;">';
+                api.wrapFields.end = '</span>';
+
+                apiPort.postMessage({ method: 'buildUri', api: api });
+                break;
+            case 'getFields':
+                settings.api.port = $('#apiPort').val();
+                settings.api.host = $('#apiHost').val();
+                settings.api.username = $('#apiUsername').val();
+                settings.api.password = $('#apiPassword').val();
+                settings.api.uriFormat = $('#apiUriFormat').val();
+
+                settingsPort.postMessage({ method: 'set', caller: 'setFields', settings: settings });
+                break;
+            case 'refreshUri':
+                api.port = $('#apiPort').val();
+                api.host = $('#apiHost').val();
+                api.username = $('#apiUsername').val();
+                api.password = $('#apiPassword').val();
+                api.uriFormat = $('#apiUriFormat').val();
+                
+                api.wrapFields = { start: '<span style="color:orange;">', end: '</span>'};
+
+                apiPort.postMessage({ method: 'buildUri', api: api });
+                break;
         }
-    });
-};
+    }
+});
 
-var setSettings = function(data, callback) {
-    var obj= {};
-    obj['magnetLinkerSettings'] = data;
-
-    chrome.storage.sync.set(obj, function() {
-        if (typeof callback === "function") {
-            callback();
-        }
-    });
-};
+apiPort.onMessage.addListener(function(response) {
+    $('#apiUriPreview').html(response.uri);
+});
 
 $(function() {
-    getSettings(function(settings) {
-        $('#apiPort').val(settings.api.port);
-        $('#apiHost').val(settings.api.host);
-        $('#apiUsername').val(settings.api.username);
-        $('#apiPassword').val(settings.api.password);
-    });
+    settingsPort.postMessage({ method: 'get', caller: 'setFields' });
 
     $('#saveOptions').click(function(e) {
-        getSettings(function(settings) {
-            settings.api.port = $('#apiPort').val();
-            settings.api.host = $('#apiHost').val();
-            settings.api.username = $('#apiUsername').val();
-            settings.api.password = $('#apiPassword').val();
+        settingsPort.postMessage({ method: 'get', caller: 'getFields' });
+    });
 
-            setSettings(settings);
-        });
+    $( "#apiUriFormat" ).keyup(function() {
+        settingsPort.postMessage({ method: 'get', caller: 'refreshUri' });
     });
 });

@@ -1,11 +1,11 @@
 chrome.runtime.onConnect.addListener(function(port) {
     switch (port.name) {
         case 'magnetCheck':
-            port.onMessage.addListener(function (request) {
+            port.onMessage.addListener(function(request) {
                 if (request.magnets) {
-                    chrome.tabs.insertCSS(null, {file: 'content/css/bootstrap.micro.min.css'}, function() {
-                        chrome.tabs.executeScript(null, {file: 'content/js/bootstrap.micro.min.js'}, function() {
-                            chrome.tabs.executeScript(null, {file: 'content/js/content_script.js'}, function() {
+                    chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.micro.min.css' }, function() {
+                        chrome.tabs.executeScript(null, { file: 'content/js/bootstrap.micro.min.js' }, function() {
+                            chrome.tabs.executeScript(null, { file: 'content/js/content_script.js' }, function() {
                                 //port.postMessage('loaded new content-script');
                             });
                         });
@@ -14,20 +14,28 @@ chrome.runtime.onConnect.addListener(function(port) {
             });
             break;
 
-        case 'trpc':
-            port.onMessage.addListener(function (request) {
+        case 'torrent':
+            port.onMessage.addListener(function(request) {
                 try {
-                    switch(request.method) {
+                    switch (request.method) {
                         case 'add':
                             if (request.magnet) {
-                                addTorrent(request.magnet, function (response) {
+                                addTorrent(request.magnet, function(response) {
                                     response.buttonId = request.buttonId;
-                                    response.magnet =request.magnet;
+                                    response.magnet = request.magnet;
 
-                                    port.postMessage(response);
+                                    getSettings(function(settings) {
+                                        settings.magnets.push(response.magnet);
+
+                                        setSettings(settings);
+
+                                        response.settings = settings;
+
+                                        port.postMessage(response);
+                                    });
                                 });
                             } else {
-                                port.postMessage({success: false, message: 'no magnet link supplied!'});
+                                port.postMessage({ success: false, message: 'no magnet link supplied!' });
                             }
                             break;
                         case 'getAll':
@@ -36,12 +44,40 @@ chrome.runtime.onConnect.addListener(function(port) {
                             });
                             break;
                         default:
-                            port.postMessage({success:false, message: 'unknown method : ' + request.method});
+                            port.postMessage({ success: false, message: 'unknown method : ' + request.method });
                             break;
                     }
+                } catch (e) {
+                    port.postMessage({ success: false, magnet: request.magnet, exception: e });
                 }
-                catch (e) {
-                    port.postMessage({success:false, magnet:request.magnet, exception:e});
+            });
+            break;
+
+        case 'settings':
+            port.onMessage.addListener(function(request) {
+                switch (request.method) {
+                    case 'get':
+                        getSettings(function(settings) { 
+                            port.postMessage({ request: request, settings: settings }); 
+                        });
+                        break;
+                    case 'set':
+                        setSettings(request.settings, function(settings) {
+                            port.postMessage({ request: request, success: true });
+                        });
+                        break;
+                }
+            });
+            break;
+
+        case 'api':
+            port.onMessage.addListener(function(request) {
+                switch (request.method) {
+                    case 'buildUri':
+                        buildApiUrl(request.api, function(uri) { 
+                            port.postMessage({ request: request, uri: uri }); 
+                        });
+                        break;
                 }
             });
             break;
@@ -54,13 +90,38 @@ var sessionId,
             port: '49091',
             host: '192.168.1.20',
             username: 'qnap',
-            password: 'qnap'
+            password: 'qnap',
+            uriFormat: 'http://[username]:[password]@[host]:[port]/transmission/rpc'
         },
         magnets: []
     };
 
+var buildApiUrl = function(request, callback) {
+    var uri = '';
+
+    if (request.wrapFields) {
+        uri = request.uriFormat
+            .replace('[username]', request.wrapFields.start + request.username + request.wrapFields.end)
+            .replace('[password]', request.wrapFields.start + request.password + request.wrapFields.end)
+            .replace('[host]', request.wrapFields.start + request.host + request.wrapFields.end)
+            .replace('[port]', request.wrapFields.start + request.port + request.wrapFields.end);
+
+        
+    } else {
+        uri = request.uriFormat
+            .replace('[username]', request.username)
+            .replace('[password]', request.password)
+            .replace('[host]', request.host)
+            .replace('[port]', request.port);
+    }
+
+    if (typeof callback === "function") {
+        callback(uri);
+    }
+}
+
 var getSettings = function(callback) {
-    chrome.storage.sync.get({'magnetLinkerSettings' : defaultSettings}, function(data) {
+    chrome.storage.sync.get({ 'magnetLinkerSettings': defaultSettings }, function(data) {
         if (typeof callback === "function") {
             callback(data.magnetLinkerSettings);
         }
@@ -68,7 +129,7 @@ var getSettings = function(callback) {
 };
 
 var setSettings = function(data, callback) {
-    var obj= {};
+    var obj = {};
     obj['magnetLinkerSettings'] = data;
 
     chrome.storage.sync.set(obj, function() {
@@ -80,12 +141,12 @@ var setSettings = function(data, callback) {
 
 var addTorrent = function(magnet, callback) {
     callApi(JSON.stringify({
-        arguments: {filename:magnet},
-        method:"torrent-add",
-        tag:8
+        arguments: { filename: magnet },
+        method: "torrent-add",
+        tag: 8
     }), function(response) {
         if (response.success) {
-            response.message = 'Success! Added Torrent: "' + response.jsonResponse['arguments']['torrent-added']['name'] +'"';
+            response.message = 'Success! Added Torrent: "' + response.jsonResponse['arguments']['torrent-added']['name'] + '"';
         }
 
         callback(response);
@@ -94,9 +155,9 @@ var addTorrent = function(magnet, callback) {
 
 var getTorrents = function(callback) {
     callApi(JSON.stringify({
-        arguments: {fields:'id,name'},
-        method:"torrent-get",
-        tag:8
+        arguments: { fields: 'id,name' },
+        method: "torrent-get",
+        tag: 8
     }), function(response) {
         callback(response);
     });
@@ -105,9 +166,13 @@ var getTorrents = function(callback) {
 var callApi = function(data, callback) {
     getSettings(function(settings) {
         var xHttp = new XMLHttpRequest(),
-            httpResponse;
+            httpResponse,
+            uri;
 
-        xHttp.open("POST", 'http://' + settings.api.username + ':' + settings.api.password + '@' + settings.api.host + ':' + settings.api.port + '/transmission/rpc', true);
+        buildApiUrl(settings.api, function(response) {
+            uri = response;
+            xHttp.open("POST", uri, true);
+        });
 
         if (sessionId) {
             xHttp.setRequestHeader("X-Transmission-Session-Id", sessionId);
@@ -127,9 +192,9 @@ var callApi = function(data, callback) {
 
                                     // json key containing dash-hyphen '-' is an invalid javascript identifier, so we need to use array [' '] syntax instead
                                     if (jsonResponse.result.toLowerCase() == "success") {
-                                        callback({success:true, jsonResponse:jsonResponse});
+                                        callback({ success: true, jsonResponse: jsonResponse, uri: uri });
                                     } else {
-                                        callback({success:false, jsonResponse:jsonResponse});
+                                        callback({ success: false, jsonResponse: jsonResponse, uri: uri });
                                     }
                                     break;
                                 case 409: // need new session-id
@@ -140,32 +205,28 @@ var callApi = function(data, callback) {
                                     });
                                     break;
                                 case 401:
-                                    callback({success:false, message:'unauthorised user (401)'});
+                                    callback({ success: false, message: 'unauthorised user (401)', uri: uri });
                                     break;
                                 default:
-                                    callback({success:false, message:'unknown http.status: ' + xHttp.status});
+                                    callback({ success: false, message: 'unknown http.status: ' + xHttp.status, uri: uri });
                                     break;
                             }
+                        } else {
+                            callback({ success: false, message: 'error: empty response', uri: uri });
                         }
-                        else {
-                            callback({success:false, message:'error: empty response'});
-                        }
-                    }
-                    catch (e) {
-                        callback({success:false, message:'unknown error: ' + e.message});
+                    } catch (e) {
+                        callback({ success: false, message: 'unknown error: ' + e.message, uri: uri });
                     }
                 }
             }
-        }
-        catch (e) {
-            callback({success:false, message:'unknown error: ' + e.message});
+        } catch (e) {
+            callback({ success: false, message: 'unknown error: ' + e.message, uri: uri });
         }
 
         try {
             xHttp.send(data);
-        }
-        catch (e) {
-            callback({success:false, message:'unknown error: ' + e.message});
+        } catch (e) {
+            callback({ success: false, message: 'unknown error: ' + e.message, uri: uri });
         }
     });
 };
