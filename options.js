@@ -55,7 +55,9 @@ $(function() {
         settingsPort.postMessage({ method: 'get', caller: 'getFields' });
     });
 
-    $( "#apiUriFormat" ).keyup(function() {
+    $("#apiUriFormat").keyup(function() {
         settingsPort.postMessage({ method: 'get', caller: 'refreshUri' });
     });
+
+    $('#settingsTabs a:first').tab('show');
 });
