@@ -33,8 +33,8 @@ var init = function(settings) {
         var link = $(this),
             id = 'pop' + i;
 
-        var btnHtml = '<button id="' + id + '" type="button" class="btn btn-info">Send to Transmission</button>',
-            btnHtmlDone = '<button id="' + id + '" type="button" class="btn btn-success" disabled="true">Sent successfully.</button>',
+        var btnHtml = '<div class="tw-bs"><button id="' + id + '" type="button" class="btn btn-info">Send to Transmission</button></div>',
+            btnHtmlDone = '<div class="tw-bs"><button id="' + id + '" type="button" class="btn btn-success" disabled="true">Sent successfully.</button></div>',
             matchFound = false;
 
         $.each(settings.magnets, function(i, m) {

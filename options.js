@@ -14,6 +14,9 @@ settingsPort.onMessage.addListener(function(response) {
                 $('#apiPassword').val(settings.api.password);
                 $('#apiUriFormat').val(settings.api.uriFormat);
 
+                $('#magnetCount').html(settings.magnets.length);
+                $('#clearMagnets').attr('disabled', settings.magnets.length === 0);
+
                 api.wrapFields = {}
                 api.wrapFields.start = '<span style="color:orange;">';
                 api.wrapFields.end = '</span>';
@@ -40,6 +43,14 @@ settingsPort.onMessage.addListener(function(response) {
 
                 apiPort.postMessage({ method: 'buildUri', api: api });
                 break;
+            case 'clearMagnets':
+                settings.magnets = [];
+
+                settingsPort.postMessage({ method: 'set', caller: 'clearMagnets', settings: settings });
+
+                $('#magnetCount').html(settings.magnets.length);
+                $('#clearMagnets').attr('disabled', settings.magnets.length === 0);
+                break;
         }
     }
 });
@@ -57,6 +68,10 @@ $(function() {
 
     $("#apiUriFormat").keyup(function() {
         settingsPort.postMessage({ method: 'get', caller: 'refreshUri' });
+    });
+    
+    $('#clearMagnets').click(function(e) {
+        settingsPort.postMessage({ method: 'get', caller: 'clearMagnets' });
     });
 
     $('#settingsTabs a:first').tab('show');

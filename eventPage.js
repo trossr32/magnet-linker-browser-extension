@@ -3,10 +3,12 @@ chrome.runtime.onConnect.addListener(function(port) {
         case 'magnetCheck':
             port.onMessage.addListener(function(request) {
                 if (request.magnets) {
-                    chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.micro.min.css' }, function() {
-                        chrome.tabs.executeScript(null, { file: 'content/js/bootstrap.micro.min.js' }, function() {
-                            chrome.tabs.executeScript(null, { file: 'content/js/content_script.js' }, function() {
-                                //port.postMessage('loaded new content-script');
+                    chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.tw.css' }, function() {
+                        chrome.tabs.insertCSS(null, { file: 'content/css/popover.css' }, function() {
+                            chrome.tabs.executeScript(null, { file: 'content/js/bootstrap.micro.min.js' }, function() {
+                                chrome.tabs.executeScript(null, { file: 'content/js/content_script.js' }, function() {
+                                    //port.postMessage('loaded new content-script');
+                                });
                             });
                         });
                     });
