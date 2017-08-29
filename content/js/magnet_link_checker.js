@@ -8,7 +8,8 @@ port.onMessage.addListener(function(response) {
     //console.log(response);
 });
 
-if ($("a[href^='magnet:']").length) {
-    //console.log('found magnets, posting success message.');
-    port.postMessage({magnets: true});
-}
+var hasMagnets = $("a[href^='magnet:']").length > 0;
+
+//console.log(hasMagnets);
+
+port.postMessage({magnets: hasMagnets});

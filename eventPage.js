@@ -2,12 +2,19 @@ chrome.runtime.onConnect.addListener(function(port) {
     switch (port.name) {
         case 'magnetCheck':
             port.onMessage.addListener(function(request) {
+                chrome.tabs.getCurrent(function (tab){
+                    var img = 'content/assets/images/Transmission' + (request.magnets ? '' : '-faded') + '16.png';
+                    
+                    chrome.browserAction.setIcon({path: img});
+                });
+
                 if (request.magnets) {
                     chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.tw.css' }, function() {
                         chrome.tabs.insertCSS(null, { file: 'content/css/popover.css' }, function() {
                             chrome.tabs.executeScript(null, { file: 'content/js/bootstrap.micro.min.js' }, function() {
                                 chrome.tabs.executeScript(null, { file: 'content/js/content_script.js' }, function() {
-                                    //port.postMessage('loaded new content-script');
+                                    chrome.browserAction.setIcon({path: 'content/assets/images/transmission.png'});
+                                    port.postMessage('loaded new content-script');
                                 });
                             });
                         });
@@ -83,16 +90,33 @@ chrome.runtime.onConnect.addListener(function(port) {
                 }
             });
             break;
+
+        case 'icon':
+            port.onMessage.addListener(function(request) {
+                chrome.tabs.getCurrent(function (tab){
+                    var img = 'content/assets/images/Transmission' + (request.magnets ? '' : '-faded') + '16.png';
+                    
+                    chrome.browserAction.setIcon({path: img});
+                });
+            });
+            break;
     }
 });
+
+// listen for tab selection so we can check whether the icon should be faded or not
+// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+//     chrome.tabs.sendMessage(tabId, { name: 'icon' }, {}, function (response) {
+//         chrome.browserAction.setIcon({path: 'content/assets/images/Transmission' + (response.magnets ? '' : '-faded') + '16.png'});
+//     });
+// });
 
 var sessionId,
     defaultSettings = {
         api: {
-            port: '49091',
-            host: '192.168.1.20',
-            username: 'qnap',
-            password: 'qnap',
+            port: '',
+            host: '',
+            username: '',
+            password: '',
             uriFormat: 'http://[username]:[password]@[host]:[port]/transmission/rpc'
         },
         magnets: []
