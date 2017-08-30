@@ -35,6 +35,8 @@ var sendToTransmission = function(magnet, buttonId) {
 };
 
 var init = function(settings) {
+    console.log('entered init');
+
     // find all magnet links and apply popovers
     $("a[href^='magnet:']").each(function(i) {
         var link = $(this),
@@ -44,7 +46,11 @@ var init = function(settings) {
             btnHtmlDone = '<div class="tw-bs" style="float:left;"><button id="' + id + '" type="button" class="btn btn-danger btn-mini" data-magnet="' + link.attr('href') + '" disabled>Already sent</button></div>',
             matchFound = false;
 
+        console.log('looping settings.magnets to find matches');
+        
         $.each(settings.magnets, function(i, m) {
+            console.log('inside loop');
+            
             if (link.attr('href') == m) {
                 matchFound = true;
             }
@@ -52,7 +58,11 @@ var init = function(settings) {
 
         var html = matchFound ? btnHtmlDone : btnHtml;
 
+        console.log('about to insert button');
+
         $(html).insertAfter(link);
+
+        console.log('button inserted');
 
         // link.attr({
         //     'data-toggle': 'popover',
@@ -83,6 +93,8 @@ var init = function(settings) {
         //         }
         //     });
     });
+
+    console.log('adding click events');
 
     $('[id^="stt_btn"]').click(function () {
         sendToTransmission($(this).attr('data-magnet'), $(this).attr('id'));        
