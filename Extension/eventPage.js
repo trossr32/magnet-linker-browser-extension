@@ -9,15 +9,15 @@ chrome.runtime.onConnect.addListener(function(port) {
                 });
 
                 if (request.magnets) {
-                    chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.tw.css' }, function() {
-                        chrome.tabs.insertCSS(null, { file: 'content/css/popover.css' }, function() {
+                    chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.tw.min.css' }, function() {
+                        //chrome.tabs.insertCSS(null, { file: 'content/css/popover.min.css' }, function() {
                             chrome.tabs.executeScript(null, { file: 'content/js/bootstrap.micro.min.js' }, function() {
                                 chrome.tabs.executeScript(null, { file: 'content/js/content_script.js' }, function() {
                                     chrome.browserAction.setIcon({path: 'content/assets/images/transmission.png'});
                                     port.postMessage('loaded new content-script');
                                 });
                             });
-                        });
+                        //});
                     });
                 }
             });

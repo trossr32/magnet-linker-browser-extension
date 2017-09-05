@@ -22,6 +22,19 @@ settingsPort.onMessage.addListener(function(response) {
                 api.wrapFields.end = '</span>';
 
                 apiPort.postMessage({ method: 'buildUri', api: api });
+
+                $('.easyPaginateNav').remove();
+                $('#easyPaginate').empty();
+
+                $.each(settings.magnets, function(i, v) {
+                    $('#easyPaginate').append('<div class="well well-sm">' + v + '</div>');
+                });
+
+                $('#easyPaginate').easyPaginate({
+                    paginateElement: 'div',
+                    elementsPerPage: 5,
+                    effect: 'climb'
+                });
                 break;
             case 'getFields':
                 settings.api.port = $('#apiPort').val();
@@ -69,9 +82,13 @@ $(function() {
     $("#apiUriFormat").keyup(function() {
         settingsPort.postMessage({ method: 'get', caller: 'refreshUri' });
     });
-    
-    $('#clearMagnets').click(function(e) {
+
+    $('#clearMagnets').click(function (e) {
         settingsPort.postMessage({ method: 'get', caller: 'clearMagnets' });
+    });
+
+    $('#refreshMagnets').click(function (e) {
+        settingsPort.postMessage({ method: 'get', caller: 'setFields' });
     });
 
     $('#settingsTabs a:first').tab('show');

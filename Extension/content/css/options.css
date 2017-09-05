@@ -1,0 +1,19 @@
+#easyPaginate {
+}
+
+    #easyPaginate div {
+        overflow-wrap: break-word;
+    }
+
+.easyPaginateNav a {
+    padding: 5px;
+}
+
+    .easyPaginateNav a.current {
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+#settingsTabs {
+    margin-bottom: 40px;
+}
