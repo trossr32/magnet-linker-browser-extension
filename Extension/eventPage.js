@@ -119,7 +119,8 @@ var sessionId,
             password: '',
             uriFormat: 'http://[username]:[password]@[host]:[port]/transmission/rpc'
         },
-        magnets: []
+        magnets: [],
+        sites: []
     };
 
 var buildApiUrl = function(request, callback) {
@@ -149,12 +150,20 @@ var buildApiUrl = function(request, callback) {
 var getSettings = function(callback) {
     chrome.storage.sync.get({ 'magnetLinkerSettings': defaultSettings }, function(data) {
         if (typeof callback === "function") {
+            if (!data.magnetLinkerSettings.hasOwnProperty('sites')) {
+                data.magnetLinkerSettings.sites = [];
+            }
+
             callback(data.magnetLinkerSettings);
         }
     });
 };
 
-var setSettings = function(data, callback) {
+var setSettings = function (data, callback) {
+    if (!data.hasOwnProperty('sites')) {
+        data.sites = [];
+    }
+
     var obj = {};
     obj['magnetLinkerSettings'] = data;
 

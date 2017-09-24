@@ -25,6 +25,7 @@
     $.fn.easyPaginate = function (options) {
         var defaults = {
             paginateElement: 'li',
+            paginateClass: '',
             hashPage: 'page',
             elementsPerPage: 10,
             effect: 'default',
@@ -219,7 +220,14 @@
             plugin.settings = $.extend({}, defaults, options);
 
             plugin.currentElements = $([]);
-            plugin.settings.objElements = plugin.el.find(plugin.settings.paginateElement);
+
+            // add class in element find otherwise all instances of the element are paginated!
+            if (plugin.settings.paginateClass == '') {
+                plugin.settings.objElements = plugin.el.find(plugin.settings.paginateElement);
+            } else {
+                plugin.settings.objElements = plugin.el.find(plugin.settings.paginateElement + '.' + plugin.settings.paginateClass);
+            }
+
             plugin.settings.pages = getNbOfPages();
             if (plugin.settings.pages > 1) {
                 plugin.el.html();
