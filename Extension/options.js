@@ -201,7 +201,7 @@ settingsPort.onMessage.addListener(function (response) {
                 }
             });
 
-            if (site.id === 0) {
+            if (site.id === 0 && settings.sites.length > 0) {
                 site.id = parseInt(getMax(settings.sites, 'id').id) + 1;
             }
 
