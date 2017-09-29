@@ -60,6 +60,10 @@ var init = function(settings) {
 
         var html = startHtml + button + endHtml;
 
+        if (!settings.enabled) {
+            html = '<div class="magnetLinkerHider">' + html + '</div>';
+        }
+
         $(html).insertAfter(link);
     });
 

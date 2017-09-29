@@ -1,25 +1,26 @@
 chrome.runtime.onConnect.addListener(function(port) {
     switch (port.name) {
         case 'magnetCheck':
-            port.onMessage.addListener(function(request) {
-                chrome.tabs.getCurrent(function (tab){
-                    var img = 'content/assets/images/Transmission' + (request.magnets ? '' : '-faded') + '16.png';
-                    
-                    chrome.browserAction.setIcon({path: img});
-                });
+            port.onMessage.addListener(function (request) {
+                getSettings(function (settings) {
+                    settings.pageHasMagnets = request.magnets;
 
-                if (request.magnets) {
-                    chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.tw.min.css' }, function() {
-                        //chrome.tabs.insertCSS(null, { file: 'content/css/popover.min.css' }, function() {
-                            chrome.tabs.executeScript(null, { file: 'content/js/bootstrap.micro.min.js' }, function() {
-                                chrome.tabs.executeScript(null, { file: 'content/js/content_script.js' }, function() {
-                                    chrome.browserAction.setIcon({path: 'content/assets/images/transmission.png'});
-                                    port.postMessage('loaded new content-script');
+                    setSettings(settings, function() {
+                        setIcon(settings);
+
+                        if (settings.pageHasMagnets) {
+                            chrome.tabs.insertCSS(null, { file: 'content/css/bootstrap.tw.min.css' }, function () {
+                                chrome.tabs.insertCSS(null, { file: 'content/css/content_script.css' }, function () {
+                                    chrome.tabs.executeScript(null, { file: 'content/js/bootstrap.micro.min.js' }, function () {
+                                        chrome.tabs.executeScript(null, { file: 'content/js/content_script.js' }, function () {
+
+                                        });
+                                    });
                                 });
                             });
-                        //});
+                        }
                     });
-                }
+                });
             });
             break;
 
@@ -92,23 +93,27 @@ chrome.runtime.onConnect.addListener(function(port) {
             break;
 
         case 'icon':
-            port.onMessage.addListener(function(request) {
-                chrome.tabs.getCurrent(function (tab){
-                    var img = 'content/assets/images/Transmission' + (request.magnets ? '' : '-faded') + '16.png';
-                    
-                    chrome.browserAction.setIcon({path: img});
+            port.onMessage.addListener(function (request) {
+                getSettings(function (settings) {
+                    setIcon(settings);
                 });
             });
             break;
     }
 });
 
-// listen for tab selection so we can check whether the icon should be faded or not
-// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-//     chrome.tabs.sendMessage(tabId, { name: 'icon' }, {}, function (response) {
-//         chrome.browserAction.setIcon({path: 'content/assets/images/Transmission' + (response.magnets ? '' : '-faded') + '16.png'});
-//     });
-// });
+// listen for tab update/activation and amend icon to suit
+ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+     getSettings(function (settings) {
+        setIcon(settings);
+     });
+});
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+    getSettings(function (settings) {
+        setIcon(settings);
+    });
+});
 
 var sessionId,
     defaultSettings = {
@@ -120,8 +125,26 @@ var sessionId,
             uriFormat: 'http://[username]:[password]@[host]:[port]/transmission/rpc'
         },
         magnets: [],
-        sites: []
+        sites: [],
+        enabled: true,
+        pageHasMagnets: false
     };
+
+var setIcon = function(settings) {
+    chrome.tabs.getCurrent(function (tab) {
+        var i = ''; // enabled no magnets
+
+        if (!settings.enabled) {
+            i = '-faded'; // not enabled
+        } else if (settings.pageHasMagnets) {
+            i = '-magnets'; // enabled with magnets
+        }
+
+        var img = 'content/assets/images/Transmission' + i + '16.png';
+
+        chrome.browserAction.setIcon({ path: img });
+    });
+}
 
 var buildApiUrl = function(request, callback) {
     var uri = '';
@@ -154,6 +177,14 @@ var getSettings = function(callback) {
                 data.magnetLinkerSettings.sites = [];
             }
 
+            if (!data.magnetLinkerSettings.hasOwnProperty('enabled')) {
+                data.magnetLinkerSettings.enabled = true;
+            }
+
+            if (!data.magnetLinkerSettings.hasOwnProperty('pageHasMagnets')) {
+                data.magnetLinkerSettings.pageHasMagnets = false;
+            }
+
             callback(data.magnetLinkerSettings);
         }
     });
@@ -162,6 +193,14 @@ var getSettings = function(callback) {
 var setSettings = function (data, callback) {
     if (!data.hasOwnProperty('sites')) {
         data.sites = [];
+    }
+
+    if (!data.hasOwnProperty('enabled')) {
+        data.enabled = true;
+    }
+
+    if (!data.hasOwnProperty('pageHasMagnets')) {
+        data.pageHasMagnets = false;
     }
 
     var obj = {};

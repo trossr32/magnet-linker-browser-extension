@@ -201,15 +201,19 @@ settingsPort.onMessage.addListener(function (response) {
                 }
             });
 
-            if (site.id === 0 && settings.sites.length > 0) {
-                site.id = parseInt(getMax(settings.sites, 'id').id) + 1;
+            if (site.id == 0) {
+                site.id = (settings.sites.length > 0)
+                    ? parseInt(getMax(settings.sites, 'id').id) + 1
+                    : 1;
             }
 
             $('#customiserModal').modal();
+
+            $('#customiserId').val(site.id);
             break;
 
         case 'customiserModal_save':
-            site.id = $('#customiserId').val();
+            site.id = parseInt($('#customiserId').val());
             site.name = $('#customiserName').val();
             site.search = $('#customiserSearch').val();
             site.float = $('#customiserFloat').val();
@@ -238,7 +242,7 @@ settingsPort.onMessage.addListener(function (response) {
 
         case 'customiserModal_delete':
             settings.sites = settings.sites.filter(function (s) {
-                return s.id !== response.request.id;
+                return s.id !== parseInt(response.request.id);
             });
 
             settingsPort.postMessage({ method: 'set', caller: '', settings: settings });
@@ -264,11 +268,7 @@ $(function () {
     // add uri preview builder events
     $.each([$("#apiUriFormat"), $("#apiHost"), $("#apiPort"), $("#apiUsername"), $("#apiPassword")],
         function (i, el) {
-            el.keyup(function () {
-                settingsPort.postMessage({ method: 'get', caller: 'refreshUri' });
-            });
-
-            el.blur(function () {
+            el.on('keyup blur', function() {
                 settingsPort.postMessage({ method: 'get', caller: 'refreshUri' });
             });
         });
@@ -299,7 +299,7 @@ $(function () {
     });
 
     $('#customiserModal').on('show.bs.modal', function (e) {
-        populateModalFieldsFromSite();
+        //populateModalFieldsFromSite();
 
         buildInjectedHtmlPreview();
     });

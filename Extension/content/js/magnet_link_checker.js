@@ -4,12 +4,10 @@
 
 var port = chrome.runtime.connect({name: 'magnetCheck'});
 
-port.onMessage.addListener(function(response) {
-    //console.log(response);
+var checkMagnets = function() {
+    port.postMessage({ magnets: $("a[href^='magnet:']").length > 0 });
+}
+
+$(function () {
+    checkMagnets();
 });
-
-var hasMagnets = $("a[href^='magnet:']").length > 0;
-
-//console.log(hasMagnets);
-
-port.postMessage({magnets: hasMagnets});
