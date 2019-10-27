@@ -124,6 +124,10 @@ var sessionId,
             password: '',
             uriFormat: 'http://[username]:[password]@[host]:[port]/transmission/rpc'
         },
+        search: {
+            attributes: 'href',
+            elementTypes: 'code'
+        },
         magnets: [],
         sites: [],
         enabled: true,

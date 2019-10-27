@@ -5,7 +5,25 @@
 var port = chrome.runtime.connect({name: 'magnetCheck'});
 
 var checkMagnets = function() {
-    port.postMessage({ magnets: $("a[href^='magnet:']").length > 0 });
+    port.postMessage({ magnets: 
+        // check if any elements have a magnet link in their text
+        ($("*")
+            .map(function () {
+                if (/magnet:\?xt=urn:btih:[a-zA-Z0-9]*/g.test($(this).text())) {
+                    return this;
+                }
+            })
+            .get()
+            .length > 0) || 
+        // check if any elements have a magnet link the their href attribute
+        ($("*")
+            .map(function () {
+                if (/magnet:\?xt=urn:btih:[a-zA-Z0-9]*/g.test($(this).attr('href'))) {
+                    return this;
+                }
+            })
+            .get()
+            .length > 0)});
 }
 
 $(function () {

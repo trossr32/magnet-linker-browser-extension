@@ -44,6 +44,11 @@ var setApiFields = function (settings) {
     $('#apiUriFormat').val(settings.api.uriFormat);
 }
 
+var setSearchFields = function (settings) {
+    $('#searchAttributes').val(settings.search.attributes);
+    $('#searchElementTypes').val(settings.search.elementTypes);
+}
+
 var buildStorageTab = function (settings) {
     $('#magnetCount').html(settings.magnets.length);
     $('#clearMagnets').attr('disabled', settings.magnets.length === 0);
@@ -146,6 +151,11 @@ var setSettingsPropertiesFromApiForm = function(settings) {
     settings.api.uriFormat = $('#apiUriFormat').val();
 }
 
+var setSettingsPropertiesFromSearchForm = function(settings) {
+    settings.search.attributes = $('#searchAttributes').val();
+    settings.search.elementTypes = $('#searchElementTypes').val();
+}
+
 settingsPort.onMessage.addListener(function (response) {
     var settings = response.settings;
 
@@ -154,6 +164,8 @@ settingsPort.onMessage.addListener(function (response) {
             setApiFields(settings);
 
             buildApiUri(settings);
+
+            setSearchFields(settings);
 
             buildStorageTab(settings);
 
@@ -166,6 +178,12 @@ settingsPort.onMessage.addListener(function (response) {
             setSettingsPropertiesFromApiForm(settings);
 
             settingsPort.postMessage({ method: 'set', caller: 'setFields', settings: settings });
+            break;
+
+        case 'setSearchFields':
+            setSettingsPropertiesFromSearchForm(settings);
+
+            settingsPort.postMessage({ method: 'set', caller: 'setSearchFields', settings: settings });
             break;
 
         case 'refreshUri':
@@ -265,6 +283,11 @@ $(function () {
         settingsPort.postMessage({ method: 'get', caller: 'setFields' });
     });
 
+    // save search settings button click event
+    $('#saveSearchOptions').click(function(e) {
+        settingsPort.postMessage({ method: 'get', caller: 'setSearchFields' });
+    });
+
     // add uri preview builder events
     $.each([$("#apiUriFormat"), $("#apiHost"), $("#apiPort"), $("#apiUsername"), $("#apiPassword")],
         function (i, el) {
@@ -299,7 +322,7 @@ $(function () {
     });
 
     $('#customiserModal').on('show.bs.modal', function (e) {
-        //populateModalFieldsFromSite();
+        populateModalFieldsFromSite();
 
         buildInjectedHtmlPreview();
     });

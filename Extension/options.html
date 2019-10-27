@@ -19,6 +19,9 @@
             <a class="nav-link active" data-toggle="tab" href="#api" role="tab" aria-controls="api">API</a>
         </li>
         <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#search" role="tab" aria-controls="search">Magnet search</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" data-toggle="tab" href="#customiser" role="tab" aria-controls="customiser">Customise injected HTML</a>
         </li>
         <li class="nav-item">
@@ -70,6 +73,40 @@
                     <div class="col-sm-1"></div>
                 </div>
                 <button id="saveOptions" type="button" class="btn btn-primary" style="margin-top:20px;">Save</button>
+            </form>
+        </div>
+        <div class="tab-pane fade active" id="search" role="tabpanel">
+            <p>
+                By default, this extension will search for magnet links in the page source by looking at any HTML elements that have either:
+            </p>
+                
+            <ul>
+                <li>an href attribute containing a magnet link</li>
+                <li>a code element with text that matches an element link</li>
+            </ul>
+
+            <p>
+                This section allows the addition of more element types containing magnet links in the thier text, or look for a magnet link in elements attributes other than href.
+            </p>
+
+            <p>
+                Care should be taken with these options as it's easy to cover a page in links if selectors are too vague!
+            </p>
+
+            <form id="apiOptionsForm">
+                <div class="form-group row">
+                    <label for="searchAttributes" class="col-sm-2 col-form-label">Element attributes to search, separated by comma. e.g. href,data-link</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="searchAttributes" placeholder="Element attributes to search, separated by comma. e.g. (href,data-link)">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="searchElementTypes" class="col-sm-2 col-form-label">Element types to search when matching element content, separated by comma. e.g. code,div</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="searchElementTypes" placeholder="Element types to search when matching element content, separated by comma. e.g. code,div">
+                    </div>
+                </div>
+                <button id="saveSearchOptions" type="button" class="btn btn-primary" style="margin-top:20px;">Save</button>
             </form>
         </div>
         <div class="tab-pane fade active" id="customiser" role="tabpanel">
