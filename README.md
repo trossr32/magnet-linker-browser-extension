@@ -22,13 +22,13 @@ You can configure how magnet links are found on web pages by adding attributes o
 
 For example **href** will find the magnet link in an element like:
 
-*<a href="magnet:?xt=urn:btih:d540fc48eb12f2833163eed6421d449dd8f1ce1f&amp;dn=Ubuntu+desktop+19.04+%2864bit%29" title="Download this torrent using magnet">Magnet link</a>*
+```<a href="magnet:?xt=urn:btih:d540fc48eb12f2833163eed6421d449dd8f1ce1f&amp;dn=Ubuntu+desktop+19.04+%2864bit%29" title="Download this torrent using magnet">Magnet link</a>```
 
 ### by an element's type
 
 For example **code** will find the magnet link in an element like:
 
-*<code class="myClass">magnet:?xt=urn:btih:d540fc48eb12f2833163eed6421d449dd8f1ce1f&amp;dn=Ubuntu+desktop+19.04+%2864bit%29</code>*
+```<code class="myClass">magnet:?xt=urn:btih:d540fc48eb12f2833163eed6421d449dd8f1ce1f&amp;dn=Ubuntu+desktop+19.04+%2864bit%29</code>```
 
 This kind of element searching is useful for searching on websties where magnet links are written out rather than linked, such as Reddit
 
