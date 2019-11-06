@@ -288,3 +288,4 @@ __pycache__/
 *.xsd.cs
 /.idea
 /.vs
+/magnet-linker-chrome-extension.zip
