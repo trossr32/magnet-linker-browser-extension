@@ -1,6 +1,6 @@
 # Magnet Linker 
 
-Magnet linker is a chrome extension that extends magnet links on websites to enable the quick adding of torrents to Transmission via the RPC API.
+Magnet linker is an extension for both Chrome and the new chromium Microsoft Edge that extends magnet links on websites to enable the quick adding of torrents to Transmission via the RPC API.
 
 Any magnet links found on a page are extended with a button displayed next to the link which sends that torrent straight to your Transmission instance. 
 
@@ -8,7 +8,7 @@ Custom HTML can be added both before and after the button element based on a sea
 
 # Getting started
 
-Once the extension is installed on Chrome got to the options page and configure the extension.
+Once the extension is installed on Chrome or Edge go to the options page and configure the extension.
 
 ## API
 
@@ -43,7 +43,7 @@ The extension stores all magnets that have been sent to the transmission API so 
 magnets and clear down the list if you choose.
 
 # Create package
-A powershell script and batch file that executes the PS script are included but this simply zips teh Extension directory as that's all that's required to publish this to the Chrome Web Store.
+Powershell scripts and batch files that execute those PS scripts are included but these simply zip the Extension or Edge Extension directories, as that's all that's required to publish this to the Chrome Web Store and Microsoft Edge Addons sites.
 
 # Contribute
 If you can make this extension better I'm happy for the help! Create a pull request and get in touch.
