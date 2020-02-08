@@ -1,0 +1,1 @@
+Powershell.exe -File CreateEdgePackage.ps1
