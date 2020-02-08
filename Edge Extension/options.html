@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magnet linker options</title>
+    <link rel="stylesheet" href="content/css/bootstrap.min.css">
+    <link rel="stylesheet" href="content/css/options.css"/>
+    <script src="content/js/jquery-3.2.1.min.js"></script>
+    <script src="content/js/jquery.easyPaginate.js"></script>
+    <script src="content/js/bootstrap.min.js"></script>
+    <script src="content/js/font-awesome_all.min.js"></script>
+    <script src="content/js/options.js"></script>
+</head>
+<body>
+<div class="container">
+    <h2 style="margin-bottom: 30px;">Magnet linker options</h2>
+
+    <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#api" role="tab" aria-controls="api"><i class="fas fa-cloud-upload-alt"></i>&nbsp;&nbsp;&nbsp;API</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#search" role="tab" aria-controls="search"><i class="fas fa-magnet"></i>&nbsp;&nbsp;&nbsp;Magnet search</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#customiser" role="tab" aria-controls="customiser"><i class="fab fa-html5"></i>&nbsp;&nbsp;&nbsp;Customise injected HTML</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#storage" role="tab" aria-controls="storage"><i class="far fa-hdd"></i>&nbsp;&nbsp;&nbsp;Storage</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#github" role="tab" aria-controls="github"><i class="fab fa-github"></i>&nbsp;&nbsp;&nbsp;Github</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#donate" role="tab" aria-controls="donate">Show some&nbsp;&nbsp;<i class="fas fa-heart" style="color:red;"></i></a>
+        </li>
+    </ul>
+        
+    <div class="tab-content">
+        <div class="tab-pane fade active" id="api" role="tabpanel">
+            <form id="apiOptionsForm">
+                <div class="form-group row">
+                    <label for="apiHost" class="col-sm-2 col-form-label">RPC API domain/host</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="apiHost" placeholder="Host/Domain (e.g. 192.168.0.1)">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="apiPort" class="col-sm-2 col-form-label">RPC API port</label>
+                    <div class="col-sm-10">
+                        <input type="number" class="form-control" id="apiPort" placeholder="Port (e.g. 9091)">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="apiUsername" class="col-sm-2 col-form-label">RPC API username</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="apiUsername" placeholder="RPC API username">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="apiPassword" class="col-sm-2 col-form-label">RPC API password</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="apiPassword" placeholder="RPC API password">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="apiUriFormat" class="col-sm-2 col-form-label">RPC API URL format</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="apiUriFormat" placeholder="URL format">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-10 alert alert-info" role="alert">
+                        <strong>URL Preview:&nbsp;&nbsp;&nbsp; <span id="apiUriPreview"></span></strong>
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+                <button id="saveOptions" type="button" class="btn btn-primary" style="margin-top:20px;">Save</button>
+            </form>
+        </div>
+        <div class="tab-pane fade active" id="search" role="tabpanel">
+            <p>
+                By default, this extension will search for magnet links in the page source by looking at any HTML elements that have either:
+            </p>
+                
+            <ul>
+                <li>an href attribute containing a magnet link</li>
+                <li>a code element with text that matches an element link</li>
+            </ul>
+
+            <p>
+                This section allows the addition of more element types containing magnet links in the thier text, or look for a magnet link in elements attributes other than href.
+            </p>
+
+            <p>
+                Care should be taken with these options as it's easy to cover a page in links if selectors are too vague!
+            </p>
+
+            <form id="apiOptionsForm">
+                <div class="form-group row">
+                    <label for="searchAttributes" class="col-sm-2 col-form-label">Element attributes to search, separated by comma. e.g. href,data-link</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="searchAttributes" placeholder="Element attributes to search, separated by comma. e.g. (href,data-link)">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="searchElementTypes" class="col-sm-2 col-form-label">Element types to search when matching element content, separated by comma. e.g. code,div</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="searchElementTypes" placeholder="Element types to search when matching element content, separated by comma. e.g. code,div">
+                    </div>
+                </div>
+                <button id="saveSearchOptions" type="button" class="btn btn-primary" style="margin-top:20px;">Save</button>
+            </form>
+        </div>
+        <div class="tab-pane fade active" id="customiser" role="tabpanel">
+            <form id="customiserDisplayForm">
+                <div class="form-group row">
+                    <div id="customiserPaginate"></div>
+                </div>
+                <div>
+                    <div>
+                        <button id="addCustomiser" type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Add customised site</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="storage" role="tabpanel">
+            <form id="storageOptionsForm">
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <div style="float: left;">
+                            <label class="col-form-label"><span id="magnetCount"></span> magnet links stored</label>
+                        </div>
+                        <div style="float: right;">
+                            <button id="refreshMagnets" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-refresh"></span> Refresh list</button>
+                            <button id="clearMagnets" type="button" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> Clear stored magnets</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div id="easyPaginate"></div>
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="github" role="tabpanel">
+            <div class="col-md-1"></div>
+            <div class="col-md-10" style="text-align: center">
+                <h2 style="margin-bottom: 45px;">Contribute on Github</h2>
+                <h4 style="margin-bottom: 45px;">
+                    This project is open source on Github: <a href="https://github.com/trossr32/magnet%2Dlinker%2Dchrome%2Dextension">here</a>
+                </h4>
+                <h4 style="margin-bottom: 35px;">
+                    If you found this extension useful and would like to fix a bug or add an improvement, please create a pull request.
+                </h4>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+        <div class="tab-pane fade" id="donate" role="tabpanel">
+            <div class="col-md-1"></div>
+            <div class="col-md-10" style="text-align: center">
+                <h2 style="margin-bottom: 45px;">Buy me a beer</h2>
+                <h4 style="margin-bottom: 15px;">
+                    If you found this extension useful and would like to buy me a beer please click the link below
+                </h4>
+                <p>&nbsp;</p>
+                <p>
+                    <a href="https://paypal.me/RobGreenDev/10"><img src="content/assets/images/paypal.jpg" alt="PayPal" width="180" /></a>
+                </p>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+    </div>
+</div>
+    
+<!-- Modal -->
+<div id="customiserModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <input type="hidden" id="customiserId" />
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Site details</h4>
+            </div>
+            <div class="modal-body">
+                <form id="customiserOptionsForm">
+                    <div class="form-group row">
+                        <label for="customiserName" class="col-sm-2 col-form-label">Site name</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="customiserName" placeholder="Website name">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="customiserSearch" class="col-sm-2 col-form-label">Search query</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="customiserSearch" placeholder="Search string contained within URL hostname">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="customiserFloat" class="col-sm-2 col-form-label">Button container div float</label>
+                        <div class="col-sm-9">
+                            <select id="customiserFloat" class="form-control">
+                                <option value="left" selected="selected">left</option>
+                                <option value="right">right</option>
+                                <option value="none">none</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="customiserInsertBefore" class="col-sm-2 col-form-label">Insert before</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="customiserInsertBefore" placeholder="HTML to insert before button div">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="customiserInsertAfter" class="col-sm-2 col-form-label">Insert after</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="customiserInsertAfter" placeholder="HTML to insert after button div">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group row">
+                        <div class="col-sm-1"></div>
+                        <div class="col-sm-10 alert alert-info" role="alert">
+                            <div><strong>Injected button preview:</strong></div>
+                            <div id="injectedHtmlPreview">
+                                
+                            </div>
+                        </div>
+                        <div class="col-sm-1"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+                <button id="saveCustomiser" type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
