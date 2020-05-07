@@ -1,3 +1,21 @@
+body {
+    background-color: #1d1e22;
+    color: #fff
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
+    color: #fff;
+    background-color: #1d1e22;
+}
+
+.nav > li > a:focus, .nav > li > a:hover {
+    background-color: #1d1e22;
+}
+
+a, a:focus, a:hover {
+    color: deepskyblue;
+}
+
 #easyPaginate {
 }
 
@@ -16,6 +34,16 @@
 
 #settingsTabs {
     margin-bottom: 40px;
+}
+
+.well-sm {
+    -ms-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.well {
+    background-color: #1d1e22;
+    border: 1px solid #eee;
 }
 
 .wellLabel {
@@ -38,7 +66,7 @@
 
 .customiserInsertPreview {
     margin: 10px 0;
-    color: Orange;
+    color: orange;
     font-weight: bold;
 }
 
