@@ -1,5 +1,5 @@
 $extension = Resolve-Path -LiteralPath "Extension\"
-$zip = Resolve-Path -LiteralPath "magnet-linker-chrome-extension.zip"
+$zip = Join-Path (Get-Location).Path "magnet-linker-chromium-extension.zip"
 
 print
 
