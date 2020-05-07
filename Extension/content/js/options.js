@@ -177,13 +177,13 @@ settingsPort.onMessage.addListener(function (response) {
         case 'setFields':
             setSettingsPropertiesFromApiForm(settings);
 
-            settingsPort.postMessage({ method: 'set', caller: 'setFields', settings: settings });
+            settingsPort.postMessage({ method: 'set', caller: '', settings: settings });
             break;
 
         case 'setSearchFields':
             setSettingsPropertiesFromSearchForm(settings);
 
-            settingsPort.postMessage({ method: 'set', caller: 'setSearchFields', settings: settings });
+            settingsPort.postMessage({ method: 'set', caller: '', settings: settings });
             break;
 
         case 'refreshUri':
