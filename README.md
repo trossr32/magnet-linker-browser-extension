@@ -8,6 +8,10 @@ Custom HTML can be added both before and after the button element based on a sea
 
 # Getting started
 
+Chrome web store: https://chrome.google.com/webstore/detail/magnet-linker/neokhcngmjnlbnphpfmiidlljbpffecd
+
+Microsoft Edge add-ons: https://microsoftedge.microsoft.com/addons/detail/iagaihihgeloakmheonacpldkpogggen
+
 Once the extension is installed on Chrome or Edge go to the options page and configure the extension.
 
 ## API
