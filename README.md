@@ -50,4 +50,4 @@ magnets and clear down the list if you choose.
 Powershell scripts and batch files that execute those PS scripts are included but these simply zip the Extension or Edge Extension directories, as that's all that's required to publish this to the Chrome Web Store and Microsoft Edge Addons sites.
 
 # Contribute
-If you can make this extension better I'm happy for the help! Create a pull request and get in touch.
+If you can make this extension better I'm happy for the help! Create a pull request and get in touch. Alternatively feel free to raise an issue if you've found a bug.
