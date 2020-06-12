@@ -6,7 +6,6 @@ var getCurrentCustomiser = function (settings) {
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         $.each(settings.sites, function (i, s) {
-            console.log(s.search.toLowerCase(), tabs[0].url.toLowerCase());
             if (s.search != '' && tabs[0].url.toLowerCase().includes(s.search.toLowerCase())) {
                 site = s;
             }

@@ -1,5 +1,18 @@
-$extension = Resolve-Path -LiteralPath "Extension\"
-$zip = Join-Path (Get-Location).Path "magnet-linker-chromium-extension.zip"
+param([string]$BrowserType)
+
+$extension = ""
+$zip = ""
+
+switch (&BrowserType) {
+	"Chromium" {
+		$extension = Resolve-Path -LiteralPath "ChromiumExtension/"
+		$zip = Join-Path (Get-Location).Path "magnet-linker-chromium.zip"
+	}
+	"Firefox" {
+		$extension = Resolve-Path -LiteralPath "FirefoxAddOn/"
+		$zip = Join-Path (Get-Location).Path "magnet-linker-firefox.zip"
+	}
+}
 
 print
 
