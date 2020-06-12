@@ -3,7 +3,7 @@ param([string]$BrowserType)
 $extension = ""
 $zip = ""
 
-switch (&BrowserType) {
+switch ($BrowserType) {
 	"Chromium" {
 		$extension = Resolve-Path -LiteralPath "ChromiumExtension/"
 		$zip = Join-Path (Get-Location).Path "magnet-linker-chromium.zip"

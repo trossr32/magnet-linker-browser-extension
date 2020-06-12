@@ -12,7 +12,7 @@ Custom HTML can be added both before and after the button element based on a sea
 
 [Extension on the Microsoft Edge add-ons store](https://microsoftedge.microsoft.com/addons/detail/iagaihihgeloakmheonacpldkpogggen)
 
-[Add-on on the Firefox add-ons store](https://)
+[Add-on on the Firefox add-ons store](https://addons.mozilla.org/en-GB/firefox/addon/magnet-linker/)
 
 Once installed in your browser go to the options page and configure the extension.
 
