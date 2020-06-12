@@ -54,8 +54,6 @@ var init = function(settings) {
         }
     }).get();
 
-    console.log('textElements', textElements);
-
     $.each(textElements, function(i, v) {
         var el = $(this),
             elementTypes = settings.search.elementTypes.split(','),
@@ -73,10 +71,6 @@ var init = function(settings) {
         var id = 'stt_btn' + i,
             matchFound = false,
             magnet = el.text().match(/magnet:\?xt=urn:btih:[a-zA-Z0-9]*/);
-
-
-            console.log('magnet', magnet);
-            console.log('magnet[0]', magnet[0]);
 
         $.each(settings.magnets, function (i, m) {
             if (magnet == m) {
@@ -106,8 +100,6 @@ var init = function(settings) {
                 return this;
             }
         }).get();
-        
-        console.log('attrElements', attrElements);
     
         $.each(attrElements, function(ie, v) {
             var link = $(this),

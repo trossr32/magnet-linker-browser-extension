@@ -1,12 +1,11 @@
-var settingsPort = chrome.runtime.connect({ name: 'settings' }),
-    iconPort = chrome.runtime.connect({ name: 'icon' });
+var settingsPort = browser.runtime.connect({ name: 'settings' }),
+    iconPort = browser.runtime.connect({ name: 'icon' });
 
 var getCurrentCustomiser = function (settings) {
     var site = null;
 
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         $.each(settings.sites, function (i, s) {
-            console.log(s.search.toLowerCase(), tabs[0].url.toLowerCase());
             if (s.search != '' && tabs[0].url.toLowerCase().includes(s.search.toLowerCase())) {
                 site = s;
             }
@@ -48,8 +47,8 @@ settingsPort.onMessage.addListener(function (response) {
 
             iconPort.postMessage({ x: "y" });
 
-            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
+            browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                browser.tabs.update(tabs[0].id, { url: tabs[0].url });
             });
             break;
     }
@@ -64,6 +63,6 @@ $(function () {
     });
 
     $('#btnSettings').click(function() {
-        chrome.runtime.openOptionsPage(); // add open flag in settings?
+        browser.runtime.openOptionsPage(); // add open flag in settings?
     });
 });
