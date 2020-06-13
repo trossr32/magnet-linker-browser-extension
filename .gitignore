@@ -143,7 +143,7 @@ DocProject/Help/Html2
 DocProject/Help/html
 
 # Click-Once directory
-publish/
+[Pp]ublish/
 
 # Publish Web Output
 *.[Pp]ublish.xml
@@ -288,8 +288,4 @@ __pycache__/
 *.xsd.cs
 /.idea
 /.vs
-/magnet-linker-chrome-extension.zip
-/magnet-linker-chromium-extension.zip
-/magnet-linker-chromium.zip
-/magnet-linker-firefox.zip
 /Developer Dashboard - Chrome Web Store.url
