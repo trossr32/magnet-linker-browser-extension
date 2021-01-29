@@ -49,24 +49,6 @@ var setSearchFields = function (settings) {
     $('#searchElementTypes').val(settings.search.elementTypes);
 }
 
-var buildStorageTab = function (settings) {
-    $('#magnetCount').html(settings.magnets.length);
-    $('#clearMagnets').attr('disabled', settings.magnets.length === 0);
-
-    $('.easyPaginateNav').remove();
-    $('#easyPaginate').empty();
-
-    $.each(settings.magnets, function (i, v) {
-        $('#easyPaginate').append('<div class="well well-sm">' + v + '</div>');
-    });
-
-    $('#easyPaginate').easyPaginate({
-        paginateElement: 'div',
-        elementsPerPage: 5,
-        effect: 'climb'
-    });
-}
-
 var buildCustomiserTab = function (settings) {
     $('.customiserPaginateNav').remove();
     $('#customiserPaginate').empty();
@@ -167,8 +149,6 @@ settingsPort.onMessage.addListener(function (response) {
 
             setSearchFields(settings);
 
-            buildStorageTab(settings);
-
             buildCustomiserTab(settings);
 
             buildInjectedHtmlPreview();
@@ -190,15 +170,6 @@ settingsPort.onMessage.addListener(function (response) {
             setSettingsPropertiesFromApiForm(settings);
 
             buildApiUri(settings);
-            break;
-
-        case 'clearMagnets':
-            settings.magnets = [];
-
-            settingsPort.postMessage({ method: 'set', caller: 'clearMagnets', settings: settings });
-
-            $('#magnetCount').html(settings.magnets.length);
-            $('#clearMagnets').attr('disabled', settings.magnets.length === 0);
             break;
 
         case 'customiserModal_get':
@@ -302,15 +273,6 @@ $(function () {
     });
 
     $('#customiserFloat').change(buildInjectedHtmlPreview);
-
-    // storage tab button events
-    $('#clearMagnets').click(function (e) {
-        settingsPort.postMessage({ method: 'get', caller: 'clearMagnets' });
-    });
-
-    $('#refreshMagnets').click(function (e) {
-        settingsPort.postMessage({ method: 'get', caller: 'setFields' });
-    });
 
     // customiser tab button events
     $('#addCustomiser').click(function (e) {

@@ -47,11 +47,6 @@ This kind of element searching is useful for searching on websites where magnet 
 On a site by site basis you can customise the HTML that surrounds the injected 'send to transmission' button, and also the float characteristics of the div. For example, on Zooqle it's worth setting the float
 to none to better position the buttons on the page. The 'search' parameter must match all or part of the website's URL, so for Zooqle for example, just use 'zooqle'.
 
-# Magnet storage
-
-The extension stores all magnets that have been sent to the transmission API so that when a page is loaded, buttons can be markes as 'already sent' for those links already added. The Storage tab in options allows you to see all of these
-magnets and clear down the list if you choose.
-
 # Create package
 A Powershell script and batch files that execute that PS script are included but these simply zip the ChromiumExtension directory or run web-ext build against the FirefoxAddOn directory, as that's all that's required to publish this to the Chrome Web Store, Microsoft Edge Addons and Firefox Addons sites.
 

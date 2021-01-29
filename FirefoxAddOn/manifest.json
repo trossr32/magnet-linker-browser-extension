@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Magnet linker",
   "description": "Extends magnet links to enable quick adding of torrents to Transmission via the RPC API.",
-  "version": "1.2.0.0",
+  "version": "1.2.1.0",
   "browser_action": {
     "default_icon": "content/assets/images/Transmission-faded.png",
     "default_popup": "popup.html"
