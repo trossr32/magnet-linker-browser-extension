@@ -1,0 +1,8 @@
+body {
+    background-color: #1d1e22;
+    color: #fff
+}
+
+.popupRow { width: 100%; margin-bottom: 10px; }
+.popupBtn { width: 100%; }
+.popupContainer { width: 15em; text-align: center; padding-top: 10px; }

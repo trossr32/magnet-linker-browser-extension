@@ -1,0 +1,9 @@
+.bootstrap-iso {
+  @import '../../../node_modules/bootstrap/scss/bootstrap.scss';
+
+  .btn-mini {
+    font-size: 11px;
+    line-height: 14px;
+    padding: 2px 6px;
+  }
+}

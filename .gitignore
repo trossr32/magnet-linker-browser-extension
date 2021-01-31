@@ -289,3 +289,6 @@ __pycache__/
 /.idea
 /.vs
 /Developer Dashboard - Chrome Web Store.url
+
+# grunt output
+Test/
