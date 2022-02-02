@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Magnet linker options</title>
+    <link rel="stylesheet" href="content/css/bootstrap.min.css">
+    <link rel="stylesheet" href="content/css/popup.css" />
+    <script src="content/js/jquery.min.js"></script>
+    <script src="content/js/browser-polyfill.min.js"></script>
+    <script src="content/js/bootstrap.bundle.min.js"></script>
+    <script src="content/js/all.min.js"></script>
+    <script src="content/js/core.js"></script>
+    <script src="content/js/popup.js"></script>
+    
+    <style type="text/css">
+        .popupRow { width: 100%; margin-bottom: 10px; }
+        .popupBtn { width: 100%; }
+        .popupContainer { width: 25em; text-align: center; padding-top: 10px; }
+    </style>
+</head>
+<body>
+<div class="container popupContainer">
+    <div class="popupRow text-center">
+        <button type="button" class="btn btn-success popupBtn" id="toggleActive"><i class="fas fa-power-off"></i>&nbsp;&nbsp;&nbsp;&nbsp;Disable</button>
+    </div>
+
+    <div class="popupRow text-center">
+        <button type="button" class="btn btn-primary popupBtn" id="btnSettings"><i class="fas fa-cogs"></i>&nbsp;&nbsp;&nbsp;Settings</button>
+    </div>
+    
+    <div class="popupRow alert alert-info" id="currentCustomiser"></div>
+</div>
+</body>
+</html>
