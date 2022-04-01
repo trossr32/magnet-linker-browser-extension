@@ -60,6 +60,10 @@ function magnetStorageTemplate(data) {
     return html;
 }
 
+/**
+ * Build the storage tab
+ * @param {Setting} data - settings
+ */
 async function buildStorageTab(settings) {
     $('#magnetCount').html(settings.magnets.length);
     $('#clearMagnets').attr('disabled', settings.magnets.length === 0);
@@ -77,30 +81,27 @@ async function buildStorageTab(settings) {
     });
 
     // enable toggle
-    $('#toggle-storage-enabled').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
-        onstyle: 'success',
-        offstyle: 'danger',
-        width: '90px',
-        size: 'small'
-    });
+    $.each(['', '-buttons'], function (i, v) {
+        let idSelector = `#toggle-storage${v}-enabled`;
 
-    $('#toggle-storage-buttons-enabled').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
-        onstyle: 'success',
-        offstyle: 'danger',
-        width: '90px',
-        size: 'small'
-    });
+        // initialise toggle
+        $(idSelector).bootstrapToggle({
+            on: 'Enabled',
+            off: 'Disabled',
+            onstyle: 'success',
+            offstyle: 'danger',
+            width: '90px',
+            size: 'small'
+        });
 
-    $('#toggle-storage-enabled').prop('checked', settings.storageEnabled);
-    $('#toggle-storage-buttons-enabled').prop('checked', settings.storageButtonsEnabled);
+        // storage enabled/disabled toggle change event
+        $(idSelector).on('change', setSettingsPropertiesFromStorageForm);
+    });
 }
 
 /**
  * Build the debug tab
+ * @param {Setting} data - settings
  */
 async function initialiseDebugForm(settings) {
     let wrapper = $('<div></div>')
@@ -283,7 +284,9 @@ async function setSettingsPropertiesFromSearchForm(settings) {
 /**
  * Update settings from the storage tab form fields
  */
-async function setSettingsPropertiesFromStorageForm(settings) {
+async function setSettingsPropertiesFromStorageForm() {
+    const settings = await getSettings();
+
     settings.storageEnabled = $('#toggle-storage-enabled').prop('checked');
     settings.storageButtonsEnabled = $('#toggle-storage-buttons-enabled').prop('checked');
 

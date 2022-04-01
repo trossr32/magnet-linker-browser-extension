@@ -167,6 +167,37 @@
                 </div>
             </form>
         </div>
+        <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
+            <form id="notificationsOptionsForm">
+                <h5 class="mb-4">Notification Settings</h5>
+                <div class="row">
+                    <p>
+                        Optionally enable toast notifications to show when interacting with the generated transmission buttons.
+                    </p>
+                    <p>
+                        If 'enable toast nitifications' is disabled, this will override both the error and success toast notification settings.
+                    </p>
+                </div>
+                <div class="row mb-3">
+                    <label for="toggle-toasts-show" class="col-4" style="margin-top: 2px;">Enable toast notifications</label>
+                    <div class="col-md-5 col-sm-10">
+                        <input type="checkbox" id="toggle-toasts-show">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="toggle-toasts-error-show" class="col-4" style="margin-top: 2px;">Enable error toast notifications</label>
+                    <div class="col-md-5 col-sm-10">
+                        <input type="checkbox" id="toggle-toasts-error-show">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="toggle-toasts-success-show" class="col-4" style="margin-top: 2px;">Enable success toast notifications</label>
+                    <div class="col-md-5 col-sm-10">
+                        <input type="checkbox" id="toggle-toasts-success-show">
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="tab-pane fade" id="storage" role="tabpanel" aria-labelledby="storage-tab">
             <form id="storageOptionsForm">
                 <h5 class="mb-4">Storage Settings</h5>
@@ -191,7 +222,6 @@
                         <input type="checkbox" id="toggle-storage-buttons-enabled">
                     </div>
                 </div>
-                <button id="saveStorage" type="button" class="btn btn-primary" style="margin: 10px 0 20px;"><i class="far fa-save"></i> Save</button>
 
                 <hr />
 

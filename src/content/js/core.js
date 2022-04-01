@@ -6,8 +6,23 @@
  * @property {SiteSetting[]} sites - all site settings
  * @property {bool} enabled - is enabled
  * @property {bool} debug - log to console
+ * @property {StorageSetting} storage - storage settings
+ * @property {NotificationSetting} notification - notification settings
+ */
+
+/**
+ * A customised storage setting
+ * @typedef {Object} StorageSetting
  * @property {bool} storageEnabled - is magnet storage enabled
  * @property {bool} storageButtonsEnabled - disable buttons matching stored magnets
+ */
+
+/**
+ * A customised notification setting
+ * @typedef {Object} NotificationSetting
+ * @property {bool} showToasts - show toasts
+ * @property {bool} showErrorToasts - show error toasts
+ * @property {bool} showSuccessToasts - show success toasts
  */
 
 /**
@@ -70,8 +85,15 @@
         sites: [],
         enabled: true,
         debug: true,
-        storageEnabled: false,
-        storageButtonsEnabled: true
+        storage: {
+            storageEnabled: false,
+            storageButtonsEnabled: true
+        },
+        notifications: {
+            showToasts: true,
+            showErrorToasts: true,
+            showSuccessToasts: false
+        }
     },
     magnetLinkPattern = /magnet:\?xt=urn:btih:[a-zA-Z0-9]*/g;
 
@@ -152,12 +174,12 @@ async function getSettings() {
         data.magnetLinkerSettings.debug = false;
     }
 
-    if (!data.magnetLinkerSettings.hasOwnProperty('storageEnabled')) {
-        data.magnetLinkerSettings.storageEnabled = false;
+    if (!data.magnetLinkerSettings.hasOwnProperty('storage')) {
+        data.magnetLinkerSettings.storage = defaultSettings.storage;
     }
 
-    if (!data.magnetLinkerSettings.hasOwnProperty('storageButtonsEnabled')) {
-        data.magnetLinkerSettings.storageButtonsEnabled = false;
+    if (!data.magnetLinkerSettings.hasOwnProperty('notifications')) {
+        data.magnetLinkerSettings.notifications = defaultSettings.notifications;
     }
 
     return data.magnetLinkerSettings;
@@ -183,12 +205,12 @@ async function setSettings(data) {
         data.debug = false;
     }
 
-    if (!data.hasOwnProperty('storageEnabled')) {
-        data.storageEnabled = false;
+    if (!data.hasOwnProperty('storage')) {
+        data.storage = defaultSettings.storage;
     }
 
-    if (!data.hasOwnProperty('storageButtonsEnabled')) {
-        data.storageButtonsEnabled = false;
+    if (!data.hasOwnProperty('notifications')) {
+        data.notifications = defaultSettings.notifications;
     }
 
     let obj = {

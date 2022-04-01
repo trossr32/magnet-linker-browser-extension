@@ -1,25 +1,106 @@
 var torrentPort = browser.runtime.connect({ name: 'torrent' }),
     iconPort = browser.runtime.connect({name: 'icon'}),
     initPort = browser.runtime.connect({name: 'init'});
+    //,    checkMagnetsPort = browser.runtime.connect({name: 'checkMagnets'});
 
 initPort.onMessage.addListener(function() {
     init();
 });
 
-torrentPort.onMessage.addListener(function(/** @type {ApiResponse} */response) {
-    if (response.buttonId && response.success) {
-        $(`#${response.buttonId}`)
-            .text('Sent successfully')
-            .removeClass('btn-info')
-            .addClass('btn-success');
+browser.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    log(['[content_script.js] checkMagnetsPort.onMessage.addListener', message, sender, sendResponse]);
 
-        getSettings().then(function(settings) {
+    if (request.name && request.name === 'checkMagnets') {
+        sendResponse({hasMagnets: hasMagnets()});
+    }
+});
+        
+torrentPort.onMessage.addListener(function(/** @type {ApiResponse} */response) {
+    log('[content_script.js] torrentPort.onMessage.addListener');
+
+    getSettings().then(function(settings) {
+        if (!response.success) {
+            log('[content_script.js] torrentPort.onMessage.addListener: transmission API call failed', 'error');
+
+            let toasted = false;
+
+            if (response.message && response.message != '') {
+                log($`[content_script.js] ${response.message}`, 'error');
+
+                toast(settings, response.message, 'error');
+
+                toasted = true;
+            }
+
+            if (response.exception) {
+                log(['[content_script.js] exception:', response.exception], 'error');
+
+                if (!toasted) {
+                    toast(settings, 'An exception occurred', 'error');
+
+                    toasted = true;
+                }
+            }
+
+            if (!toasted) {
+                toast(settings, 'An unknown error occurred', 'error');
+            }
+
+            $(`#${response.buttonId}`)
+                .text('API call failed')
+                .removeClass('btn-info btn-success btn-danger')
+                .addClass('btn-danger');
+            
+            return;
+        }
+
+        if (response.buttonId && response.success) {
+            $(`#${response.buttonId}`)
+                .text('Sent successfully')
+                .removeClass('btn-info btn-success btn-danger')
+                .addClass('btn-success');
+
+            toast(settings, 'Torrent sent successfully', 'success');
+
             if (!settings.storageButtonsEnabled) {
                 $(`#${response.buttonId}`).prop('disabled', true);
             }
-        });
-    }
+        }
+    });
 });
+
+/**
+ * Toast notification
+ * @param {Setting} settings - Extension settings.
+ * @param {string} message - The message to display.
+ * @param {string} theme - The log level, allowed values are 'error', 'warning', 'info', 'success'.
+ */
+function toast(settings, message, theme = 'info') {
+    if (!settings.notification.showToasts ||
+        (!settings.notification.showSuccessToasts && theme != 'error') ||
+        (!settings.notification.showErrorToasts && theme == 'error'))
+        return;
+
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": false,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+
+    toastr[theme](message);
+}
 
 /**
  * Generate a button for the magnet link.
@@ -27,7 +108,8 @@ torrentPort.onMessage.addListener(function(/** @type {ApiResponse} */response) {
  * @param {string} id - The id of the button.
  * @param {SiteSetting} site - The site setting.
  * @param {bool} matchFound - Whether or not the magnet link was found in the page.
- * @returns 
+ * @param {Setting} settings - Extension settings.
+ * @returns {string} - The HTML for the button.
  */
 function getHtml(magnet, id, site, matchFound, settings) {
     log('[content_script.js] getHtml');
@@ -90,6 +172,8 @@ async function init() {
     if (!settings.enabled) {
         return;
     }
+
+    //$('body').append(`<div class="toast-container"></div>`);
     
     let site = {
         name: '',

@@ -1,5 +1,3 @@
-// var initPort = browser.tabs.connect({name: 'init'});
-
 /**
  * Get settings, set the extension icon and execute the content script
  */
@@ -101,23 +99,41 @@ browser.runtime.onConnect.addListener(function(port) {
     }
 });
 
-// define a port to call the magnet_link_checker content script, whihch in turn posts back to the magnetCheck port and runs the initRun function
-//let magnetCheckPort = browser.runtime.connect({name: 'magnetCheckRequest'});
+// define a port to call the magnet_link_checker content script and update the extension's icon based on whether magnets exist within the tab
+//var checkMagnetsPort = browser.tabs.connect({name: 'checkMagnets'});
 
 // listen for tab update/activation and post a magnet check request
-// browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-//     log(['[eventPage.js] browser.tabs.onUpdated', 'change info status', changeInfo]);
+browser.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    log(['[eventPage.js] browser.tabs.onUpdated', 'change info status', changeInfo]);
 
-//     if (changeInfo.status == 'complete') {
-//         initPort.postMessage({});
-//     }
-// });
+    if (changeInfo.status == 'complete') {
+        browser.tabs.sendMessage(tabId, {name: 'checkMagnets'})
+            .then(function(response) {
+                setIcon(response.hasMagnets);
+            });
+    }
+});
 
-// browser.tabs.onActivated.addListener(function (activeInfo) {
-//     log(`[eventPage.js] browser.tabs.onActivated`);
+browser.tabs.onActivated.addListener(function (activeInfo) {
+    log(`[eventPage.js] browser.tabs.onActivated`);
 
-//     initPort.postMessage({});
-// });
+    var tab = browser.tabs.query({
+        currentWindow: true, active: true
+    });
+
+    tab.then(function (tabs) {
+        log(['[eventPage.js] browser.tabs.onActivated', tabs])
+
+        if (tabs.length > 0) {
+            browser.tabs.sendMessage(tabs[0].id, {name: 'checkMagnets'})
+                .then(function(response) {
+                    setIcon(response.hasMagnets);
+                });
+        }
+      }, function (error) {
+          log(['tab connection error', error], 'error');
+      });
+});
 
 /**
  * Set the extension icon

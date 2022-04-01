@@ -26,7 +26,8 @@
     "dependencies": {
         "bootstrap-slider": "^11.0.2",
         "gem": "^2.4.3",
-        "paginationjs": "^2.1.5"
+        "paginationjs": "^2.1.5",
+        "toastr": "^2.1.4"
     },
     "scripts": {
         "test": "jest"

@@ -1,0 +1,16 @@
+/*$font-size-mini: $font-size-base * .750 !default;
+
+$input-btn-padding-y-mini: .125rem !default;
+$input-btn-padding-x-mini: .25rem !default;
+$input-btn-font-size-mini: $font-size-mini !default;
+
+$btn-padding-y-mini: $input-btn-padding-y-mini !default;
+$btn-padding-x-mini: $input-btn-padding-x-mini !default;
+$btn-font-size-mini: $input-btn-font-size-mini !default;
+
+$border-radius-mini: .15rem !default;
+$btn-border-radius-mini: $border-radius-mini !default;
+
+.btn-mini {
+    @include button-size($btn-padding-y-mini, $btn-padding-x-mini, $btn-font-size-mini, $btn-border-radius-mini);
+}*/
