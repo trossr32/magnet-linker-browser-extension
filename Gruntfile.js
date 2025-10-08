@@ -6,6 +6,8 @@ module.exports = function (grunt) {
     
     require('load-grunt-tasks')(grunt);
 
+	const isWin = process.platform === 'win32';
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
@@ -39,6 +41,7 @@ module.exports = function (grunt) {
             release: {
                 files: [
                     // js
+					
                     { expand: true, flatten: true, src: 'node_modules/@fortawesome/fontawesome-free/js/all.min.js', dest: 'dist/content/js', filter: 'isFile' },
                     { expand: true, flatten: true, src: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js', dest: 'dist/content/js', filter: 'isFile' },
                     { expand: true, flatten: true, src: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js.map', dest: 'dist/content/js', filter: 'isFile' },
@@ -49,6 +52,7 @@ module.exports = function (grunt) {
                     { expand: true, flatten: true, src: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js', dest: 'dist/content/js', filter: 'isFile' },
                     { expand: true, flatten: true, src: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js.map', dest: 'dist/content/js', filter: 'isFile' },
                     { expand: true, flatten: false, cwd: "src", src: '**/*.js', dest: 'dist', filter: 'isFile' },
+					{ expand: true, cwd: 'src', src: ['rules_1.json'], dest: 'dist/' },
 
                     // css
                     { expand: true, flatten: true, src: 'node_modules/bootstrap/dist/css/bootstrap.min.css', dest: 'dist/content/css', filter: 'isFile' },
@@ -106,7 +110,7 @@ module.exports = function (grunt) {
                 options: {
                     stdout: true
                 },
-                command: 'create-package_Grunt.sh'
+                command: './create_packages_Grunt.sh'
             }
         }
     });
@@ -122,4 +126,13 @@ module.exports = function (grunt) {
     
     // review group task
     grunt.registerTask('review', ['clean:release', 'copy:release']);
+	grunt.registerTask('package', isWin ? ['shell:ps'] : ['shell:sh']);
+	grunt.registerTask('release', [
+		'jshint',
+		'clean:release',
+		'sass',
+		'copy:release',
+		'package'
+	]);
+
 };

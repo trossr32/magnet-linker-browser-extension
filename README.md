@@ -70,7 +70,7 @@ Uses grunt as a task runner, run the following from the root directory to build:
 
 ```
 npm i 
-grunt release
+npx grunt release
 ```
 
 The grunt release config executes a Powershell script to run web-ext, this can be changed to a bash file if preferred (<a href="https://github.com/trossr32/magnet-linker-browser-extension/blob/master/Gruntfile.js#L118">see comments in the Gruntfile.js</a>).
@@ -83,3 +83,11 @@ To contribute, please create your PR to merge into the staging branch.
 <br />
 
 <a href='https://ko-fi.com/K3K22CEIT' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi4.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+
+## Motivation for fork
+
+
+Possibly install grunt and or web-ext:
+`npm install -g grunt-cli` or `npm install --save-dev grunt-cli`
+`npm install -g grunt-cli web-ext`
+Not necessary if using npx
