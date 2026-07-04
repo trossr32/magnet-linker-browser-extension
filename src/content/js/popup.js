@@ -1,54 +1,88 @@
-var iconPort = browser.runtime.connect({ name: 'icon' });
+/**
+ * Popup: enable/disable toggle, quick links, active site customisation and
+ * permission state.
+ */
 
-let getCurrentCustomiser = function (settings) {
-    var site = null;
+/**
+ * Reflect the enabled state on the toggle button.
+ * @param {Setting} settings
+ */
+function setEnabledDisabledButtonState(settings) {
+    const enabled = settings.config.enabled;
 
-    let query = browser.tabs.query({ active: true, currentWindow: true });
-    query.then(function (tabs) {
-        $.each(settings.sites, function (i, s) {
-            if (s.search != '' && tabs[0].url.toLowerCase().includes(s.search.toLowerCase())) {
-                site = s;
+    $('#toggleActive')
+        .removeClass('bg-rose-600 hover:bg-rose-500 bg-emerald-600 hover:bg-emerald-500')
+        .addClass(enabled ? 'bg-rose-600 hover:bg-rose-500' : 'bg-emerald-600 hover:bg-emerald-500')
+        .html(`<i class="fas fa-power-off"></i> ${enabled ? 'Disable' : 'Enable'}`);
+}
+
+/**
+ * Show which site customisation applies to the active tab, when the tab URL
+ * is readable (requires the all-sites permission).
+ * @param {Setting} settings
+ */
+async function showCurrentCustomiser(settings) {
+    let text = 'No customiser in use';
+
+    try {
+        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        const url = tabs.length ? tabs[0].url : null;
+
+        if (url) {
+            const site = findSiteCustomisation(settings.sites, new URL(url).hostname);
+
+            if (site) {
+                text = `Using '${site.name}' customiser`;
             }
-        });
+        }
+    } catch (e) { /* no permission to read the tab url */ }
 
-        $('#currentCustomiser').html(site == null ? 'No customiser in use' : `Using <b>${site.name}</b> customiser`);
-    });
-
-    return site;
-};
-
-let setEnabledDisabledButtonState = function(settings) {
-    $('#toggleActive').removeClass('btn-success btn-danger').addClass(`btn-${(settings.enabled ? 'danger' : 'success')}`);
-    $('#toggleActive').html(`<i class="fas fa-power-off"></i>&nbsp;&nbsp;&nbsp;&nbsp;${(settings.enabled ? 'Disable' : '&nbsp;Enable')}`);
-};
+    $('#currentCustomiser').text(text);
+}
 
 $(async function () {
-    // initialise page on load
+    const version = browser.runtime.getManifest().version.split('.').slice(0, 3).join('.');
+    $('[data-version]').text(version);
+
     const settings = await getSettings();
 
     setEnabledDisabledButtonState(settings);
+    await showCurrentCustomiser(settings);
 
-    getCurrentCustomiser(settings);
-    
-    $('#toggleActive').on('click', async function(e) {
-        const settings = await getSettings();
-        
-        // update enabled setting
-        settings.enabled = !settings.enabled;
+    const granted = await browser.permissions.contains({ origins: ['<all_urls>'] });
+    $('#popup-permission').toggleClass('hidden', granted);
 
-        await setSettings(settings);
+    $('#popupGrant').on('click', async function () {
+        try {
+            const nowGranted = await browser.permissions.request({ origins: ['<all_urls>'] });
 
-        // update popup ui
-        setEnabledDisabledButtonState(settings);
+            $('#popup-permission').toggleClass('hidden', nowGranted);
 
-        iconPort.postMessage({ x: "y" });
-
-        browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            browser.tabs.update(tabs[0].id, { url: tabs[0].url });
-        });
+            if (nowGranted) {
+                browser.runtime.sendMessage({ name: 'settingsChanged' }).catch(function () {});
+            }
+        } catch (e) {
+            log(['[popup.js] permission request failed', e], 'error');
+        }
     });
 
-    $('#btnSettings').on('click', async function() {
-        await browser.runtime.openOptionsPage(); // add open flag in settings?
+    $('#toggleActive').on('click', async function () {
+        const s = await getSettings();
+
+        s.config.enabled = !s.config.enabled;
+
+        await setSettings(s);
+
+        setEnabledDisabledButtonState(s);
+
+        browser.runtime.sendMessage({ name: 'settingsChanged' }).catch(function () {});
+
+        try {
+            await browser.tabs.reload();
+        } catch (e) { /* e.g. browser UI page */ }
+    });
+
+    $('#btnSettings').on('click', async function () {
+        await browser.runtime.openOptionsPage();
     });
 });

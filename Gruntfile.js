@@ -1,125 +1,120 @@
-/* jshint esversion: 6 */
+/* jshint esversion: 11 */
 
-/// <binding BeforeBuild='default' />
 module.exports = function (grunt) {
-    const sass = require('sass');
-    
     require('load-grunt-tasks')(grunt);
+
+    // vendor files copied into every build target
+    const vendorJs = [
+        { expand: true, flatten: true, src: 'node_modules/jquery/dist/jquery.min.js', dest: '', filter: 'isFile' },
+        { expand: true, flatten: true, src: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js', dest: '', filter: 'isFile' },
+        { expand: true, flatten: true, src: 'node_modules/@fortawesome/fontawesome-free/js/fontawesome.min.js', dest: '', filter: 'isFile' },
+        { expand: true, flatten: true, src: 'node_modules/@fortawesome/fontawesome-free/js/solid.min.js', dest: '', filter: 'isFile' },
+        { expand: true, flatten: true, src: 'node_modules/@fortawesome/fontawesome-free/js/brands.min.js', dest: '', filter: 'isFile' }
+    ];
+
+    /**
+     * Build the copy file list for a browser target.
+     * @param {string} target - 'firefox' or 'chromium'
+     * @param {string} excludedEventPage - the other browser's background entry
+     */
+    function targetFiles(target, excludedEventPage) {
+        return vendorJs.map(f => Object.assign({}, f, { dest: `dist/${target}/content/js` })).concat([
+            // source js (excluding the other browser's background entry)
+            { expand: true, flatten: false, cwd: 'src', src: ['**/*.js', `!${excludedEventPage}`], dest: `dist/${target}`, filter: 'isFile' },
+
+            // html
+            { expand: true, flatten: true, cwd: 'src', src: '*.html', dest: `dist/${target}`, filter: 'isFile' },
+
+            // content css (tailwind.css is a build input, compiled separately by shell:tailwind_*)
+            { expand: true, flatten: true, src: 'src/content/css/content_script.css', dest: `dist/${target}/content/css`, filter: 'isFile' },
+
+            // images
+            { expand: true, flatten: false, cwd: 'src/content/assets/images', src: '**', dest: `dist/${target}/content/assets/images` },
+
+            // manifest
+            { expand: true, flatten: true, src: `src/manifest-${target}/manifest.json`, dest: `dist/${target}`, filter: 'isFile' }
+        ]);
+    }
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
-        clean: { 
+        clean: {
             debug: {
-                src: ["dist/*"] 
+                src: ['dist/*']
             },
             release: {
-                src: ["dist/*", "Publish"]
-            }
-        },
-
-        sass: {
-            options: {
-                implementation: sass,
-                sourceMap: false, // Create source map
-                outputStyle: 'expanded' // Minify output
-            },
-            dist: {
-                files: [{
-                    expand: true, // Recursive
-                    cwd: "src/content/sass", // The startup directory
-                    src: ["*.scss"], // Source files
-                    dest: "dist/content/css", // Destination
-                    ext: ".css", // File extension
-                }]
+                src: ['dist/*', 'Publish']
             }
         },
 
         copy: {
-            release: {
-                files: [
-                    // js
-                    { expand: true, flatten: true, src: 'node_modules/@fortawesome/fontawesome-free/js/all.min.js', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js.map', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap4-toggle/js/bootstrap4-toggle.min.js', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap-slider/dist/bootstrap-slider.min.js', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/jquery/dist/jquery.min.js', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/paginationjs/dist/pagination.js', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/webextension-polyfill/dist/browser-polyfill.min.js.map', dest: 'dist/content/js', filter: 'isFile' },
-                    { expand: true, flatten: false, cwd: "src", src: '**/*.js', dest: 'dist', filter: 'isFile' },
-
-                    // css
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap/dist/css/bootstrap.min.css', dest: 'dist/content/css', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap/dist/css/bootstrap.min.css.map', dest: 'dist/content/css', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap4-toggle/css/bootstrap4-toggle.min.css', dest: 'dist/content/css', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap4-toggle/css/bootstrap4-toggle.min.css.map', dest: 'dist/content/css', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/bootstrap-slider/dist/css/bootstrap-slider.min.css', dest: 'dist/content/css', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'node_modules/paginationjs/dist/pagination.css', dest: 'dist/content/css', filter: 'isFile' },
-                    { expand: true, flatten: false, cwd: "src", src: '**/*.css', dest: 'dist', filter: 'isFile' },
-
-                    // content
-                    { expand: true, flatten: true, src: 'src/*.html', dest: 'dist', filter: 'isFile' },
-                    { expand: true, flatten: true, src: 'src/manifest.json', dest: 'dist', filter: 'isFile' },
-                    
-                    // images
-                    { expand: true, flatten: false, cwd: "src/content/assets/images/", src: '**', dest: 'dist/content/assets/images' },
-                ]
+            firefox: {
+                files: targetFiles('firefox', 'eventPage.chrome.js')
             },
-            debug: {
-                files: [
-                    // debug
-                    { expand: true, flatten: false, cwd: "src", src: '**/*.js', dest: 'dist', filter: 'isFile' },
-                ]
+            chromium: {
+                files: targetFiles('chromium', 'eventPage.js')
             }
         },
 
         jshint: {
             options: {
                 jshintrc: '.jshintrc'
-              },
-            all: ['Gruntfile.js', 'src/content/**/*.js'] 
+            },
+            files: ['Gruntfile.js', 'src/content/**/*.js']
         },
 
         watch: {
-            debug: {
-                files: [
-                    'Gruntfile.js',
-                    'src/**/*.*'
-                ],
-                tasks: ['release'],
-                options: {
-                    spawn: false,
-                },
+            files: ['Gruntfile.js', 'src/**/*.*'],
+            tasks: ['debug'],
+            options: {
+                spawn: false
             }
         },
 
         shell: {
+            tailwind_firefox: {
+                command: 'npx @tailwindcss/cli -i ./src/content/css/tailwind.css -o ./dist/firefox/content/css/tailwind.css --minify'
+            },
+            tailwind_chromium: {
+                command: 'npx @tailwindcss/cli -i ./src/content/css/tailwind.css -o ./dist/chromium/content/css/tailwind.css --minify'
+            },
             ps: {
-                options: {
-                    stdout: true
-                },
-                command: 'powershell.exe -File CreatePackage_Grunt.ps1'
+                command: 'pwsh -NoProfile -ExecutionPolicy Bypass -File ./CreatePackage_Grunt.ps1'
             },
             sh: {
-                options: {
-                    stdout: true
-                },
-                command: 'create-package_Grunt.sh'
+                command: './create_package_Grunt.sh'
             }
         }
     });
 
+    // Playwright loads the extension from dist/chromium in a fresh profile where
+    // optional permissions can't be granted through the browser UI. Promote the
+    // optional host permissions to required for the test build only, so the same
+    // registration code path runs with the permission already granted.
+    grunt.registerTask('manifest_test_permissions', 'Promote optional host permissions for the Playwright build', function () {
+        const path = 'dist/chromium/manifest.json';
+        const manifest = grunt.file.readJSON(path);
+
+        manifest.host_permissions = (manifest.host_permissions || []).concat(manifest.optional_host_permissions || []);
+        delete manifest.optional_host_permissions;
+
+        grunt.file.write(path, JSON.stringify(manifest, null, 2));
+
+        grunt.log.writeln('dist/chromium/manifest.json: optional host permissions promoted to required (test build only).');
+    });
+
+    const build = ['copy:firefox', 'copy:chromium', 'shell:tailwind_firefox', 'shell:tailwind_chromium'];
+
     // debug group task
-    grunt.registerTask('debug', ['jshint', 'clean:debug', 'copy']);
-    
-    // release group task
-    grunt.registerTask('release', ['jshint', 'clean:release', 'sass', 'copy:release', 'shell:ps']);
-    
-    // Runs the .sh package create. Possibly.
-    // grunt.registerTask('release', ['jshint', 'clean:release', 'sass', 'copy:release', 'shell:sh']);
-    
-    // review group task
-    grunt.registerTask('review', ['clean:release', 'copy:release']);
+    grunt.registerTask('debug', ['jshint', 'clean:debug', ...build]);
+
+    // build for Playwright integration tests (no lint, no packaging, test-permission manifest)
+    grunt.registerTask('playwright', ['clean:debug', ...build, 'manifest_test_permissions']);
+
+    // release group task; packaging script is platform-specific
+    grunt.registerTask('release', ['jshint', 'clean:release', ...build, process.platform === 'win32' ? 'shell:ps' : 'shell:sh']);
+
+    // release build without lint or packaging, e.g. for PR review
+    grunt.registerTask('review', ['clean:release', ...build]);
 };

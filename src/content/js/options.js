@@ -1,456 +1,156 @@
-let site = {
-        id: 0,
-        name: '',
-        search: '',
-        insertBefore: '',
-        insertAfter: '',
-        float: 'left'
-    },
-    entityMap = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-        '/': '&#x2F;',
-        '`': '&#x60;',
-        '=': '&#x3D;'
-    };
+/**
+ * Options page orchestrator: tab system, shared UI helpers, permission banner
+ * and boot. Tab-specific logic lives in options-1..8-*.js, loaded before this
+ * file; each exposes an initXxxTab(settings) function called from boot below.
+ */
 
-let getMax = function(arr, prop) {
-    let max;
-
-    for (let i = 0; i < arr.length; i++) {
-        if (!max || parseInt(arr[i][prop]) > parseInt(max[prop]))
-            max = arr[i];
-    }
-
-    return max;
+const entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;'
 };
 
-let escapeHtml = (string) =>
-    String(string).replace(/[&<>"'`=\/]/g, function (s) {
-        return entityMap[s];
+const escapeHtml = (string) =>
+    String(string == null ? '' : string).replace(/[&<>"'`=\/]/g, s => entityMap[s]);
+
+/**
+ * Initialise the ARIA tab system. The active tab persists in sessionStorage.
+ */
+function initTabs() {
+    const $tabs = $('[role="tab"]');
+
+    function activate(name) {
+        $tabs.each(function () {
+            $(this).attr('aria-selected', String($(this).data('tab') === name));
+        });
+
+        $('[role="tabpanel"]').each(function () {
+            $(this).toggleClass('hidden', $(this).attr('id') !== `panel-${name}`);
+        });
+
+        try {
+            sessionStorage.setItem('magnetLinkerActiveTab', name);
+        } catch (e) { /* private browsing */ }
+    }
+
+    $tabs.on('click', function () {
+        activate($(this).data('tab'));
     });
 
-async function setApiFields(settings) {
-    $('#apiPort').val(settings.api.port);
-    $('#apiHost').val(settings.api.host);
-    $('#apiUsername').val(settings.api.username);
-    $('#apiPassword').val(settings.api.password);
-    $('#apiUriFormat').val(settings.api.uriFormat);
+    let initial = 'api';
 
-    await setSettings(settings);
-}
+    try {
+        initial = sessionStorage.getItem('magnetLinkerActiveTab') || 'api';
+    } catch (e) { /* private browsing */ }
 
-async function setSearchFields(settings) {
-    $('#searchAttributes').val(settings.search.attributes);
-    $('#searchElementTypes').val(settings.search.elementTypes);
-
-    await setSettings(settings);
-}
-
-function magnetStorageTemplate(data) {
-    let html = '';
-    
-    $.each(data, function (i, v) {
-        html += `<div class="well well-sm">${v}</div>`;
-    });
-
-    return html;
-}
-
-async function buildStorageTab(settings) {
-    $('#magnetCount').html(settings.magnets.length);
-    $('#clearMagnets').attr('disabled', settings.magnets.length === 0);
-
-    $('#magnet-data-container').empty();
-
-    $('#magnet-pagination-container').pagination({
-        dataSource: settings.magnets,
-        pageSize: 5,
-        callback: function(data, pagination) {
-            let html = magnetStorageTemplate(data);
-
-            $('#magnet-data-container').html(html);
-        }
-    });
-
-    // enable toggle
-    $('#toggle-storage-enabled').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
-        onstyle: 'success',
-        offstyle: 'danger',
-        width: '90px',
-        size: 'small'
-    });
-
-    $('#toggle-storage-buttons-enabled').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
-        onstyle: 'success',
-        offstyle: 'danger',
-        width: '90px',
-        size: 'small'
-    });
-
-    $('#toggle-storage-enabled').prop('checked', settings.storageEnabled);
-    $('#toggle-storage-buttons-enabled').prop('checked', settings.storageButtonsEnabled);
+    activate(initial);
 }
 
 /**
- * Build the debug tab
+ * Convert a hidden checkbox into a styled toggle button.
+ * @param {string} selector - checkbox selector
+ * @param {{on?: string, off?: string, width?: string}} opts
+ * @param {function(boolean)} [onChange] - called with the new checked state
  */
-async function initialiseDebugForm(settings) {
-    let wrapper = $('<div></div>')
-        .append($('<h5 class="mb-4">Logging</h5>'))
-        .append($('<div class="row"></div>')
-            .append($('<label for="toggle-debug" class="col-4" style="margin-top: 2px;">Turn on console logging</label>'))
-            .append($('<div class="col"></div>')
-                .append($('<input type="checkbox" id="toggle-debug">').prop('checked', settings.debug))
-            )
-        );
+function initToggle(selector, opts, onChange) {
+    const config = Object.assign({ on: 'Enabled', off: 'Disabled', width: '90px' }, opts);
+    const $checkbox = $(selector);
 
-    $('#debugOptionsForm').prepend(wrapper);
+    if (!$checkbox.length || $checkbox.next('.ml-toggle').length) {
+        return;
+    }
 
-    // enable toggles
-    $('#toggle-debug').bootstrapToggle({
-        on: 'Enabled',
-        off: 'Disabled',
-        onstyle: 'success',
-        offstyle: 'danger',
-        width: '90px',
-        size: 'small'
-    });
+    const $button = $('<button type="button" class="ml-toggle" role="switch"></button>').css('width', config.width);
 
-    // site enabled/disabled toggle change event
-    $('#toggle-debug').on('change', setSettingsPropertiesFromDebugForm);
-}
+    const render = () => {
+        const on = $checkbox.prop('checked');
 
-function customiserTemplate(data) {
-    let html = '';
-    
-    $.each(data, function (i, s) {
-        html +=
-        `<div id="customiserRecord_${s.id}" class="well well-sm paginate" data-site-search="${s.search}">
-            <div>
-                <div class="wellData wd-header">${s.name}</div>
-                <div class="wellButtons">
-                    <button id="edit_${s.id}" type="button" class="btn btn-primary wellButton" title="edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button id="delete_${s.id}" type="button" class="btn btn-danger wellButton" title="delete">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="clear"></div>
-            <div>
-                <div class="wellLabel">Search: </div>
-                <div class="wellData">${s.search}</div>
-            </div>
-            <div class="clear"></div>
-            <div>
-                <div class="wellLabel">Float: </div>
-                <div class="wellData">${s.float}</div>
-            </div>
-            <div class="clear"></div>
-            <div>
-                <div class="wellLabel">Insert before: </div>
-                <div class="wellData">${escapeHtml(s.insertBefore)}</div>
-            </div>
-            <div class="clear"></div>
-            <div>
-                <div class="wellLabel">Insert after: </div>
-                <div class="wellData">${escapeHtml(s.insertAfter)}</div>
-            </div>
-            <div class="clear"></div>
-        </div>`;
-    });
-
-    return html;
-}
-
-async function buildCustomiserTab(settings) {
-    $('#customiser-data-container').empty();
-
-    $('#customiser-pagination-container').pagination({
-        dataSource: settings.sites,
-        pageSize: 5,
-        callback: function(data, pagination) {
-            let html = customiserTemplate(data);
-
-            $('#customiser-data-container').html(html);
-        }
-    });
-
-    $('[id^="customiserRecord_"]').each(function (i) {
-        let id = $(this).attr('id').replace('customiserRecord_', '');
-
-        $(this).find('[id^="edit_"]').on('click', async function (e) {
-            const settings = await getSettings();
-                                
-            await buildCustomiserTab(settings);
-
-            site = {
-                id: id,
-                name: '',
-                search: '',
-                insertBefore: '',
-                insertAfter: '',
-                float: 'left'
-            };
-
-            $.each(settings.sites, function(i, s) {
-                if (s.id == id) {
-                    site = s;
-                }
-            });
-
-            if (site.id == 0) {
-                site.id = (settings.sites.length > 0) ? parseInt(getMax(settings.sites, 'id').id) + 1 : 1;
-            }
-
-            $('#customiserModal').modal('show');
-
-            $('#customiserId').val(site.id);
-        });
-
-        $(this).find('[id^="delete_"]').on('click', async function (e) {
-            const settings = await getSettings();
-                
-            settings.sites = settings.sites.filter(function (s) {
-                return s.id !== parseInt(id);
-            });
-
-            await setSettings(settings);
-
-            await buildCustomiserTab(settings);
-        });
-    });
-
-    site = {
-        id: 0,
-        name: '',
-        search: '',
-        insertBefore: '',
-        insertAfter: '',
-        float: 'left'
+        $button
+            .text(on ? config.on : config.off)
+            .attr('aria-checked', String(on))
+            .removeClass('bg-emerald-600 hover:bg-emerald-500 bg-rose-600 hover:bg-rose-500')
+            .addClass(on ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-rose-600 hover:bg-rose-500');
     };
 
-    await populateModalFieldsFromSite();
-}
+    $button.on('click', function () {
+        $checkbox.prop('checked', !$checkbox.prop('checked'));
 
-async function populateModalFieldsFromSite() {
-    $('#customiserId').val(site.id);
-    $('#customiserName').val(site.name);
-    $('#customiserSearch').val(site.search);
-    $('#customiserFloat').val(site.float);
-    $('#customiserInsertBefore').val(site.insertBefore);
-    $('#customiserInsertAfter').val(site.insertAfter);
-}
+        render();
 
-async function buildInjectedHtmlPreview() {
-    $('#injectedHtmlPreview').empty();
+        if (onChange) {
+            onChange($checkbox.prop('checked'));
+        }
+    });
 
-    $('#injectedHtmlPreview').append(`<div class="customiserInsertPreview">${escapeHtml($('#customiserInsertBefore').val())}</div>`);
-    
-    $('#injectedHtmlPreview').append(`<div>${escapeHtml('<div class="tw-bs" style="float:')}<span style="color:orange;font-weight:bold;">${$('#customiserFloat').val()}</span>${escapeHtml(';">')}</div>`);
-    $('#injectedHtmlPreview').append(`<div>&nbsp;&nbsp;&nbsp;&nbsp;${escapeHtml('<button id="')}<i>id</i>${escapeHtml('" type="button" class="btn btn-primary btn-mini" data-magnet="')}<i>magnet link</i>${escapeHtml('">Send to transmission</button>')}</div>`);
-    $('#injectedHtmlPreview').append(`<div>${escapeHtml('</div>')}</div>`);
+    $checkbox.after($button);
 
-    $('#injectedHtmlPreview').append(`<div class="customiserInsertPreview">${escapeHtml($('#customiserInsertAfter').val())}</div>`);
-}
-
-async function setSettingsPropertiesFromApiForm(settings) {
-    settings.api.port = $('#apiPort').val();
-    settings.api.host = $('#apiHost').val();
-    settings.api.username = $('#apiUsername').val();
-    settings.api.password = $('#apiPassword').val();
-    settings.api.uriFormat = $('#apiUriFormat').val();
-
-    await setSettings(settings);
-}
-
-async function setSettingsPropertiesFromSearchForm(settings) {
-    settings.search.attributes = $('#searchAttributes').val();
-    settings.search.elementTypes = $('#searchElementTypes').val();
-
-    await setSettings(settings);
+    render();
 }
 
 /**
- * Update settings from the storage tab form fields
+ * Request the all-sites optional host permission (Chromium). Must run from a
+ * user gesture. Updates the banner and permissions tab, and tells the
+ * background to (re)register the content scripts.
+ * @returns {Promise<boolean>} granted
  */
-async function setSettingsPropertiesFromStorageForm(settings) {
-    settings.storageEnabled = $('#toggle-storage-enabled').prop('checked');
-    settings.storageButtonsEnabled = $('#toggle-storage-buttons-enabled').prop('checked');
+async function requestAllSitesPermission() {
+    let granted = false;
 
-    await setSettings(settings);
-}
+    try {
+        granted = await browser.permissions.request({ origins: ['<all_urls>'] });
+    } catch (e) {
+        log(['[options.js] permission request failed', e], 'error');
+    }
 
-/**
- * Update settings from the debug tab form fields
- */
-async function setSettingsPropertiesFromDebugForm() {
-    const settings = await getSettings();
+    if (granted) {
+        browser.runtime.sendMessage({ name: 'settingsChanged' }).catch(function () {});
+    }
 
-    settings.debug = $('#toggle-debug').prop('checked');
+    $('#permission-banner').toggleClass('hidden', granted);
 
-    await setSettings(settings);
+    if (typeof renderPermissionState === 'function') {
+        await renderPermissionState();
+    }
+
+    return granted;
 }
 
 $(async function () {
-    // initialise page on load
+    initTabs();
+
+    const version = browser.runtime.getManifest().version.split('.').slice(0, 3).join('.');
+    $('[data-version]').text(version);
+
     const settings = await getSettings();
 
-    await setApiFields(settings);
-    await setSearchFields(settings);
-    await buildStorageTab(settings);
-    await buildCustomiserTab(settings);
-    await initialiseDebugForm(settings);
-    await buildInjectedHtmlPreview();
+    // header extension enable/disable toggle
+    $('#toggle-extension-enabled').prop('checked', settings.config.enabled);
+    initToggle('#toggle-extension-enabled', { on: 'Enabled', off: 'Disabled' }, async function (checked) {
+        const s = await getSettings();
 
-    settings.api.wrapFields = { start: '<span style="color:orange;">', end: '</span>' };
+        s.config.enabled = checked;
 
-    $('#apiUriPreview').html(buildApiUrl(settings.api));
+        await setSettings(s);
 
-    // save settings button click event
-    $('#saveOptions').on('click', async function(e) {
-        const settings = await getSettings();
-
-        await setSettingsPropertiesFromApiForm(settings);
+        browser.runtime.sendMessage({ name: 'settingsChanged' }).catch(function () {});
     });
 
-    // save search settings button click event
-    $('#saveSearchOptions').on('click', async function(e) {
-        const settings = await getSettings();
+    // permission banner (hidden when granted; always granted on Firefox MV2)
+    const granted = await browser.permissions.contains({ origins: ['<all_urls>'] });
+    $('#permission-banner').toggleClass('hidden', granted);
+    $('#grant-permission-banner').on('click', requestAllSitesPermission);
 
-        await setSettingsPropertiesFromSearchForm(settings);
-    });
-
-    // save search settings button click event
-    $('#saveStorage').on('click', async function(e) {
-        const settings = await getSettings();
-
-        await setSettingsPropertiesFromStorageForm(settings);
-    });
-
-    // add uri preview builder events
-    $.each([$("#apiUriFormat"), $("#apiHost"), $("#apiPort"), $("#apiUsername"), $("#apiPassword")],
-        function (i, el) {
-            el.on('keyup blur', async function() {
-                const settings = await getSettings();
-                
-                await setSettingsPropertiesFromApiForm(settings);
-
-                settings.api.wrapFields = { start: '<span style="color:orange;">', end: '</span>' };
-
-                $('#apiUriPreview').html(buildApiUrl(settings.api));
-            });
-        });
-
-    // add customiser preview builder events
-    $.each([$("#customiserInsertBefore"), $("#customiserInsertAfter")], function (i, el) {
-        el.on('keyup blur', buildInjectedHtmlPreview);
-    });
-
-    $('#customiserFloat').on('change', buildInjectedHtmlPreview);
-
-    // storage tab button events
-    $('#clearMagnets').on('click', async function (e) {
-        const settings = await getSettings();
-                
-        settings.magnets = [];
-
-        await setSettings(settings);
-
-        await buildStorageTab(settings);
-    });
-
-    $('#refreshMagnets').on('click', async function (e) {
-        const settings = await getSettings();
-                
-        await buildStorageTab(settings);
-    });
-
-    // customiser tab button events
-    $('#addCustomiser').on('click', async function (e) {
-        const settings = await getSettings();
-                                
-        await buildCustomiserTab(settings);
-
-        site = {
-            id: 0,
-            name: '',
-            search: '',
-            insertBefore: '',
-            insertAfter: '',
-            float: 'left'
-        };
-
-        $.each(settings.sites, function(i, s) {
-            if (s.id == 0) {
-                site = s;
-            }
-        });
-
-        if (site.id == 0) {
-            site.id = (settings.sites.length > 0) ? parseInt(getMax(settings.sites, 'id').id) + 1 : 1;
-        }
-
-        $('#customiserModal').modal('show');
-
-        $('#customiserId').val(site.id);
-    });
-
-    $('#saveCustomiser').on('click', async function (e) {
-        const settings = await getSettings();
-                                
-        site.id = parseInt($('#customiserId').val());
-        site.name = $('#customiserName').val();
-        site.search = $('#customiserSearch').val();
-        site.float = $('#customiserFloat').val();
-        site.insertBefore = $('#customiserInsertBefore').val();
-        site.insertAfter = $('#customiserInsertAfter').val();
-
-        let siteFound = false;
-
-        $.each(settings.sites, function (i, s) {
-            if (s.id === site.id) {
-                settings.sites[i] = site;
-                siteFound = true;
-            }
-        });
-
-        if (!siteFound) {
-            settings.sites.push(site);
-        }
-                
-        $('#customiserModal').modal('hide');
-
-        await setSettings(settings);
-
-        await buildCustomiserTab(settings);
-    });
-
-    $('#customiserModal').on('show.bs.modal', async function () {
-        await populateModalFieldsFromSite();
-
-        await buildInjectedHtmlPreview();
-    });
-
-    // deactivate all other tabs on click. this shouldn't be required, but bootstrap 5 beta seems a bit buggy with tab deactivation.
-    $('.tab-pane').on('click', function() {
-        let id = $(this).attr('id');
-
-        $('.tab-pane').each(function(t) {
-            if (id == $(this).attr('id')) {
-                return;
-            }
-
-            $(this).removeClass('show active');
-        });
-    });
+    await initApiTab(settings);
+    await initSearchTab(settings);
+    await initSitesTab(settings);
+    await initStorageTab(settings);
+    await initNotificationsTab(settings);
+    await initDebugTab(settings);
+    await initBackupTab();
+    await initPermissionsTab();
 });

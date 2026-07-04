@@ -1,32 +1,23 @@
 $root = (Get-Location).Path
-$publish = Join-Path (Get-Location).Path "Publish/"
-		
+$publish = Join-Path $root "Publish"
+
 # Create Publish folder or remove any existing release packages
-if (!(Test-path $publish)) {
-	mkdir $publish
+if (!(Test-Path $publish)) {
+    New-Item -ItemType Directory -Path $publish | Out-Null
 } else {
-	Set-Location $publish
-
-	Get-Childitem -File -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item $_ }
-
-	Set-Location $root
+    Get-ChildItem -Path $publish -File -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item $_.FullName -Force }
 }
 
-# build Firefox add on
-$addon = Resolve-Path -LiteralPath "dist/"
-	
-try {
-	if (-Not (Get-Command web-ext)) { 
-		npm i -g web-ext
-	}
-} catch {
-	npm i -g web-ext
+# Firefox (xpi) and Chromium (zip) packages via web-ext
+$targets = @(
+    @{ path = "dist/firefox";  extension = "xpi" },
+    @{ path = "dist/chromium"; extension = "zip" }
+)
+
+foreach ($target in $targets) {
+    $source = Resolve-Path -LiteralPath $target.path
+
+    Write-Host "Packaging $($target.path) -> Publish/magnet_linker-{version}.$($target.extension)"
+
+    npx web-ext build -s $source -a $publish -o --filename "magnet_linker-{version}.$($target.extension)"
 }
-
-web-ext build -s $addon -a $publish -o --filename "magnet-linker-{version}.zip"
-
-Set-Location $publish
-
-$zip = Get-Childitem -Include *zip* -File -Recurse -ErrorAction SilentlyContinue
-
-Copy-Item -Path $zip -Destination ($zip.FullName -replace "zip", "xpi") -Force

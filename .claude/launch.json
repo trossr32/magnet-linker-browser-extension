@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "test-page",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "Test", "-p", "8123", "-c-1", "--silent"],
+      "port": 8123
+    }
+  ]
+}

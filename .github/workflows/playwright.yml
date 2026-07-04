@@ -1,0 +1,210 @@
+name: Playwright tests
+
+on:
+  pull_request:
+    branches: [staging, main, master]
+    types: [opened, synchronize]
+    paths:
+      - '.github/workflows/playwright.yml'
+      - 'src/**'
+      - 'Test/**'
+      - 'tests/playwright/**'
+      - 'package.json'
+  schedule:
+    - cron: '0 6 1,16 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  setup:
+    name: Build extension and prepare artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+
+      - name: Build extension
+        run: |
+          npm ci
+          npx grunt playwright
+
+      - name: Install test dependencies
+        working-directory: tests/playwright
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: tests/playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Upload extension dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-dist
+          path: dist/
+          retention-days: 7
+
+      - name: Upload test node_modules
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-node-modules
+          path: |
+            tests/playwright/node_modules
+            tests/playwright/package.json
+            tests/playwright/package-lock.json
+          retention-days: 7
+          include-hidden-files: true
+
+      - name: Upload Playwright browser cache
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-cache
+          path: ~/.cache/ms-playwright/
+          retention-days: 7
+
+  discover-tests:
+    name: Discover test files
+    runs-on: ubuntu-latest
+    needs: setup
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Discover specs and map failure-tracking issues
+        id: discover
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const dir = 'tests/playwright/extension.tests';
+            const files = fs.readdirSync(dir).filter(f => f.endsWith('.spec.ts'));
+
+            const isDefaultBranch = context.ref === 'refs/heads/master' || context.ref === 'refs/heads/main';
+            const entries = [];
+
+            let issues = [];
+            if (isDefaultBranch) {
+              issues = await github.paginate(github.rest.issues.listForRepo, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'failed-tests'
+              });
+            }
+
+            for (const file of files) {
+              const name = file.replace('.spec.ts', '');
+              const issue = issues.find(i => i.title === `Playwright test failed: ${name}`);
+
+              if (issue && issue.labels.some(l => l.name === 'confirmed-failing')) {
+                core.info(`Skipping ${file} - confirmed failing (#${issue.number})`);
+                continue;
+              }
+
+              entries.push({ file: `extension.tests/${file}`, name, issue: issue ? issue.number : null });
+            }
+
+            core.setOutput('matrix', JSON.stringify(entries));
+
+  test:
+    name: ${{ matrix.tests.name }}
+    runs-on: ubuntu-latest
+    needs: [setup, discover-tests]
+    if: ${{ needs.discover-tests.outputs.matrix != '[]' }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        tests: ${{ fromJSON(needs.discover-tests.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+
+      - name: Download extension dist
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-dist
+          path: dist/
+
+      - name: Download test node_modules
+        uses: actions/download-artifact@v4
+        with:
+          name: test-node-modules
+          path: tests/playwright/
+
+      - name: Download Playwright browser cache
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-cache
+          path: ~/.cache/ms-playwright/
+
+      - name: Restore test environment
+        working-directory: tests/playwright
+        run: |
+          chmod +x node_modules/.bin/* 2>/dev/null || true
+          find ~/.cache/ms-playwright -type f -name "chrome*" -exec chmod +x {} + 2>/dev/null || true
+          if [ ! -f node_modules/.bin/playwright ]; then npm ci; fi
+          ./node_modules/.bin/playwright --version
+
+      - name: Run test
+        working-directory: tests/playwright
+        run: ./node_modules/.bin/playwright test ${{ matrix.tests.file }}
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.tests.name }}
+          path: tests/playwright/playwright-report/
+          retention-days: 10
+
+      - name: Track failure with an issue (default branch only)
+        if: failure() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const name = '${{ matrix.tests.name }}';
+            const existing = ${{ matrix.tests.issue || 'null' }};
+
+            if (existing) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing, labels: ['confirmed-failing']
+              });
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: existing,
+                body: 'Failed again - marked confirmed-failing; this spec will be skipped on scheduled runs until the issue is closed.'
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title: `Playwright test failed: ${name}`,
+                labels: ['bug', 'failed-tests'],
+                body: `The Playwright spec \`${name}\` failed on the default branch. See the workflow run for the report artifact.`
+              });
+            }
+
+      - name: Close tracking issue on success
+        if: success() && matrix.tests.issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: ${{ matrix.tests.issue }},
+              body: 'Test passed again - closing.'
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: ${{ matrix.tests.issue }}, state: 'closed'
+            });

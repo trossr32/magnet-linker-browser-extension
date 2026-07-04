@@ -1,34 +1,49 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Magnet linker options</title>
-    <link rel="stylesheet" href="content/css/bootstrap.min.css">
-    <link rel="stylesheet" href="content/css/popup.css" />
-    <script src="content/js/jquery.min.js"></script>
-    <script src="content/js/browser-polyfill.min.js"></script>
-    <script src="content/js/bootstrap.bundle.min.js"></script>
-    <script src="content/js/all.min.js"></script>
-    <script src="content/js/core.js"></script>
-    <script src="content/js/popup.js"></script>
-    
-    <style type="text/css">
-        .popupRow { width: 100%; margin-bottom: 10px; }
-        .popupBtn { width: 100%; }
-        .popupContainer { width: 25em; text-align: center; padding-top: 10px; }
+    <meta charset="utf-8">
+    <meta name="color-scheme" content="dark">
+    <title>Magnet Linker</title>
+    <link rel="stylesheet" href="content/css/tailwind.css">
+    <style>
+        /* Chromium sizes the popup from content; Firefox (esp. Android) manages width itself */
+        body.popup-fixed-width { width: 20rem; }
     </style>
 </head>
-<body>
-<div class="container popupContainer">
-    <div class="popupRow text-center">
-        <button type="button" class="btn btn-success popupBtn" id="toggleActive"><i class="fas fa-power-off"></i>&nbsp;&nbsp;&nbsp;&nbsp;Disable</button>
+<body class="bg-[#1d1e22] text-slate-100 popup-fixed-width">
+    <div class="p-4 space-y-3 text-center">
+
+        <div class="ml-card">
+            <div class="flex items-center justify-center gap-3 mb-3">
+                <img src="content/assets/images/Transmission48.png" alt="" width="32" height="32">
+                <span class="text-base font-semibold">Magnet Linker</span>
+            </div>
+            <button type="button" id="toggleActive" class="ml-btn w-full justify-center bg-rose-600 hover:bg-rose-500"><i class="fas fa-power-off"></i> Disable</button>
+        </div>
+
+        <div id="popup-permission" class="hidden rounded-lg border border-amber-500/50 bg-amber-500/10 p-3 text-left">
+            <p class="text-xs text-amber-300 mb-2"><i class="fas fa-triangle-exclamation"></i> Site access has not been granted, so magnet links won't be detected.</p>
+            <button type="button" id="popupGrant" class="ml-btn ml-btn--primary w-full justify-center">Grant access</button>
+        </div>
+
+        <div class="ml-card space-y-2">
+            <button type="button" id="btnSettings" class="ml-btn ml-btn--neutral w-full justify-center"><i class="fas fa-gears"></i> Settings</button>
+            <a href="https://github.com/trossr32/magnet-linker-browser-extension" target="_blank" rel="noopener" class="ml-btn ml-btn--neutral w-full justify-center"><i class="fab fa-github"></i> GitHub</a>
+        </div>
+
+        <div id="currentCustomiser" class="rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-xs text-slate-300"></div>
+
+        <div>
+            <span class="text-[0.7rem] italic text-slate-400">Version <span data-version></span></span>
+        </div>
     </div>
 
-    <div class="popupRow text-center">
-        <button type="button" class="btn btn-primary popupBtn" id="btnSettings"><i class="fas fa-cogs"></i>&nbsp;&nbsp;&nbsp;Settings</button>
-    </div>
-    
-    <div class="popupRow alert alert-info" id="currentCustomiser"></div>
-</div>
+    <script src="content/js/jquery.min.js"></script>
+    <script src="content/js/browser-polyfill.min.js"></script>
+    <script src="content/js/fontawesome.min.js"></script>
+    <script src="content/js/solid.min.js"></script>
+    <script src="content/js/brands.min.js"></script>
+    <script src="content/js/core.js"></script>
+    <script src="content/js/popup.js"></script>
 </body>
 </html>

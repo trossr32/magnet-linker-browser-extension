@@ -1,0 +1,11 @@
+{
+  "name": "integration-tests",
+  "version": "1.0.0",
+  "description": "Playwright integration tests for the Magnet Linker browser extension",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^24.12.4",
+    "http-server": "^14.1.1"
+  }
+}

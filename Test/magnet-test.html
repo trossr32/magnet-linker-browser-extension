@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>Magnet link tester</title>
@@ -7,13 +7,39 @@
 
     <body>
         <div id="main-content">
-            <a href="magnet:?xt=urn:btih:59066769b9ad42da2e508611c33d7c4480b3857b&dn=ubuntu-17.04-desktop-amd64.iso&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet">
+            <h1>Magnet Linker test page</h1>
+
+            <h2>Linked magnets (found via the href attribute)</h2>
+            <a id="link-1" href="magnet:?xt=urn:btih:59066769b9ad42da2e508611c33d7c4480b3857b&dn=ubuntu-17.04-desktop-amd64.iso&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet">
                 magnet link 1
             </a>
             <br /><br />
-            <a href="magnet:?xt=urn:btih:4344503b7e797ebf31582327a5baae35b11bda01&dn=ubuntu-16.04-desktop-amd64.iso&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet">
+            <a id="link-2" href="magnet:?xt=urn:btih:4344503b7e797ebf31582327a5baae35b11bda01&dn=ubuntu-16.04-desktop-amd64.iso&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Download this torrent using magnet">
                 magnet link 2
             </a>
+            <br /><br />
+            <a id="link-1-duplicate" href="magnet:?xt=urn:btih:59066769b9ad42da2e508611c33d7c4480b3857b&dn=ubuntu-17.04-desktop-amd64.iso" title="Same magnet as link 1">
+                magnet link 1 (duplicate magnet, separate element)
+            </a>
+
+            <h2>Text magnet (found via the code element type)</h2>
+            <code id="code-1">magnet:?xt=urn:btih:aaaabbbbccccddddeeeeffff0000111122223333</code>
+
+            <h2>SPA simulation</h2>
+            <p>Adds a new magnet link and changes the URL with pushState, without a page load.</p>
+            <button id="add-magnet" type="button">Add magnet + pushState</button>
+            <div id="spa-area"></div>
+
+            <script>
+                document.getElementById('add-magnet').addEventListener('click', function () {
+                    var a = document.createElement('a');
+                    a.id = 'link-spa';
+                    a.href = 'magnet:?xt=urn:btih:9999888877776666555544443333222211110000&dn=spa-added.iso';
+                    a.textContent = 'SPA-added magnet link';
+                    document.getElementById('spa-area').appendChild(a);
+                    history.pushState({}, '', '?spa=' + Date.now());
+                });
+            </script>
         </div>
     </body>
 </html>

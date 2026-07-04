@@ -1,0 +1,35 @@
+name: Outdated packages check
+
+on:
+  pull_request:
+    branches: [master, main, staging]
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/outdated.yml'
+      - 'src/**'
+      - 'tests/**'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  outdated-packages-check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: project root
+            directory: '.'
+          - name: playwright tests
+            directory: 'tests/playwright'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check for outdated npm packages (${{ matrix.name }})
+        uses: trossr32/outdated-packages-action@v4
+        with:
+          directory: ${{ matrix.directory }}
+          use-npm-outdated: true
+          comment-label: ${{ matrix.name }}

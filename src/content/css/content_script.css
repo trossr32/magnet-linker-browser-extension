@@ -1,0 +1,95 @@
+/*
+ * Styles injected into every page the extension runs on.
+ * Everything is prefixed with magnet-linker- and kept minimal so host pages
+ * are never affected by a framework stylesheet.
+ */
+
+.magnet-linker {
+    display: inline-block;
+    margin: 0 4px;
+}
+
+.magnet-linker-btn {
+    all: initial;
+    display: inline-block;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    background-color: #0ea5e9;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.magnet-linker-btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.magnet-linker-btn:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.magnet-linker-btn--info {
+    background-color: #0ea5e9;
+}
+
+.magnet-linker-btn--success {
+    background-color: #059669;
+}
+
+.magnet-linker-btn--danger {
+    background-color: #e11d48;
+}
+
+.magnet-linker-toasts {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 2147483647;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 340px;
+}
+
+.magnet-linker-toast {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #fff;
+    background-color: #334155;
+    border-radius: 6px;
+    padding: 10px 32px 10px 12px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    word-break: break-word;
+}
+
+.magnet-linker-toast--success {
+    background-color: #059669;
+}
+
+.magnet-linker-toast--error {
+    background-color: #e11d48;
+}
+
+.magnet-linker-toast-close {
+    all: initial;
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-family: inherit;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+}
+
+.magnet-linker-toast-close:hover {
+    color: #fff;
+}
